@@ -1700,14 +1700,59 @@ class ClientManager:
         def dank_message(self, message):
             """Dank a message."""
             import random
-            meme = ['\U0001F602', '\U0001F64F', '\U0001F44F', '\U0001F64C', '\U0001F926', '\U0001F631', '\U0001F4AF']
-            rm = random.choice(meme)
-            message = re.sub(r'\b' + 'good' + r'\b', 'bussin', message, flags=re.IGNORECASE)
-            message = re.sub(r'\b' + 'bad' + r'\b', 'sus ඞඞ', message, flags=re.IGNORECASE)
-            message = re.sub('[bpg]', '\U0001F171', message, flags=re.IGNORECASE)
-            message = re.sub(r'\b' + 'yes' + r'\b', 'fr fr no cap', message, flags=re.IGNORECASE)
-            message += " " + rm + rm + rm
-            return re.sub(r'\s+', ' ', message)
+            defense = ["🤡", "🛡️"]
+            okay = ["👌", "🆗"]
+            select = {"cool": "🆒",
+                      "defense": random.choice(defense), 
+                      "ok": random.choice(okay),
+                      "relevance": "🐘",
+                      "evidence": "🧾",
+                      "case": "💼",
+                      "nice": "👍",
+                      "dead": "💀",
+                      "poison": "🧪☠️",
+                      "cammy": "🥛🥛",
+                      "lsp": "👩‍❤️‍👩",
+                      "soon": "🔜™",
+                      "oh": "😭",
+                      "italy": "🤌🍝",
+                      "italian": "🤌🍝",
+                      "france": "🥖🥐",
+                      "french": "🥖🥐",
+                      "england": "🔪🪪",
+                      "america": "🧒🔫",
+                      "usa": "🧒🔫",
+                      "europe": "🏳️‍🌈⚣",
+                      "alpaca": "🦙", 
+                      "blood": "🩸",
+                      "mod": "💩",
+                      "acro": "🧑‍🦽💨",
+                      "objection": "🤓❗",
+                      "steamed": "♨️",
+                      "hams": "🍔",
+                      "prosecution": "⚔️",
+                      "witness": "👀👀",
+                      "netflix": "👨‍⚖️",
+                      "multiwit": "🤹",
+                      "steno": "📝",
+                      "suspect": "sussy ඞඞඞ"
+                      } 
+
+            # make case insensitive
+            for x in select:
+                if x in message:
+                    #message = message.replace(x, select[x])
+                    message = re.sub(x, select[x], message, flags=re.IGNORECASE)
+            message = re.sub('[bp]', '\U0001F171', message, flags=re.IGNORECASE)
+            return message
+
+            #message = re.sub(r'\d', '#', message, flags=re.IGNORECASE)
+            #        message = re.sub(r'\b' + 'good' + r'\b', 'bussin', message, flags=re.IGNORECASE)
+            #        message = re.sub(r'\b' + 'bad' + r'\b', 'sus ඞඞ', message, flags=re.IGNORECASE)
+            #        message = re.sub('[bpg]', '\U0001F171', message, flags=re.IGNORECASE)
+            #        message = re.sub(r'\b' + 'yes' + r'\b', 'fr fr no cap', message, flags=re.IGNORECASE)
+            #        message += " " + rm + rm + rm
+            #        return re.sub(r'\s+', ' ', message)
 
     def __init__(self, server):
         self.clients = set()

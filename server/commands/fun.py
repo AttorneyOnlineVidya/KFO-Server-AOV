@@ -125,11 +125,13 @@ def ooc_cmd_gimp(client, arg):
         raise ArgumentError('You must specify a target. Use /gimp <id>.')
     if targets:
         for c in targets:
-            database.log_misc('gimp', client, target=c, data=client.area.abbreviation)
+            database.log_misc('gimp', client, target=c,
+                              data=client.area.abbreviation)
             c.gimp = True
         client.send_ooc(f'Gimped {len(targets)} existing client(s).')
     else:
         client.send_ooc('No targets found.')
+
 
 @mod_only()
 def ooc_cmd_ungimp(client, arg):
@@ -146,7 +148,8 @@ def ooc_cmd_ungimp(client, arg):
         raise ArgumentError('You must specify a target. Use /ungimp <id>.')
     if targets:
         for c in targets:
-            database.log_misc('ungimp', client, target=c, data=client.area.abbreviation)
+            database.log_misc('ungimp', client, target=c,
+                              data=client.area.abbreviation)
             c.gimp = False
         client.send_ooc(f'Ungimped {len(targets)} existing client(s).')
     else:
@@ -174,14 +177,31 @@ def ooc_cmd_rainbow(client, arg):
         client.send_ooc(f"Rainbow Mode ACTIVATED.")
 
 
+@mod_only()
 def ooc_cmd_dank(client, arg):
     """
     Activate or Deactivate dank text.
     Usage: /dank
     """
+    targets = [c for c in client.area.clients]
+    ann = "bussin"
+
+    for c in targets:
+        if c.dank:
+            c.dank = False
+        else:
+            c.dank = True
+
     if client.dank:
-        client.dank = False
-        client.send_ooc("Dank Mode DEACTIVATED.")
+        ann = "DRIP STATUS:\nGOATED WITH THE SAUCE"
+        client.send_ooc("Dank Mode ACTIVATED.")
     else:
-        client.dank = True
-        client.send_ooc(f"Dank Mode ACTIVATED.")
+        ann = "DRIP STATUS:\nNONE, COMPLETELY DRY"
+        client.send_ooc(f"Dank Mode DEACTIVATED.")
+
+    client.server.send_all_cmd_pred(
+        "CT",
+        client.server.config["hostname"],
+        f"==== ALERT ====\r\n{ann}\r\n=================",
+        "1",
+    )
