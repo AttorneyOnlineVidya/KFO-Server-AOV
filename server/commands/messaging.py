@@ -141,6 +141,8 @@ def ooc_cmd_need(client, arg):
     Broadcast a server-wide advertisement for your role-play or case.
     Usage: /need <message>
     """
+    if client.char_id == -1:
+        raise ClientError("Spectators cannot send adverts.")
     if client.muted_adverts:
         raise ClientError("You have advertisements muted.")
     if len(arg) == 0:
