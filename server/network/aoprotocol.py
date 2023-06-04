@@ -774,7 +774,7 @@ class AOProtocol(asyncio.Protocol):
             return
         if color < 0 or color >= 12:
             return
-        if len(showname) > 20:
+        if len(showname) > 24:
             self.client.send_ooc("Your IC showname is way too long!")
             return
         if not self.client.is_mod and showname.lstrip().lower().startswith("[m"):
