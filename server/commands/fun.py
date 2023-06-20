@@ -176,7 +176,7 @@ def ooc_cmd_rainbow(client, arg):
 gokudrip = """
 wait#280#%
 BN#OCCourtSky#%
-/play_once https://cdn.discordapp.com/attachments/657301457086840837/1090753556237266954/Official_Goku_Drip_Theme_-_Ultra_Dripstinct.mp3 %
+/play1 https://cdn.discordapp.com/attachments/657301457086840837/1090753556237266954/Official_Goku_Drip_Theme_-_Ultra_Dripstinct.mp3 %
 MS#1#-#Phoenix#confident# #def#1#0#0#0#0#0#0#0#0#Phoenix#-1###0<and>0#0#0#0#0#0#-^(b)confident^(a)confident^#-^(b)confident^(a)confident^#-^(b)confident^(a)confident^#0#dbzteleport||dbz-teleport#%
 wait#2500#%
 BN#OCCourtSky#%

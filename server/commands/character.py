@@ -74,7 +74,7 @@ def ooc_cmd_switch(client, arg):
         raise
     try:
         client.change_character(
-            cid, client.is_mod or client in client.area.owners)
+            cid, False)
     except ClientError:
         raise
     client.send_ooc("Character changed.")
@@ -242,14 +242,13 @@ def ooc_cmd_charselect(client, arg):
             force_charselect(client, target, " ".join(args[1:]))
     except Exception as ex:
         raise ArgumentError(
-            f"Error encountered: {ex}. Use /charselect <target's id> [character] as a mod or area owner."
+            f"Error encountered: {ex}. Use /charselect <target's id> [character] as a mod"
         )
 
 
-@mod_only()
 def force_charselect(client, target, char=""):
-    if not client.is_mod and client not in target.area.owners:
-        raise ClientError(f'Insufficient permissions for {char}')
+    if not client.is_mod:
+        raise ClientError(f'Insufficient permissions')
     if char != "":
         try:
             if char == "-1" or char.lower() == "spectator":
@@ -262,10 +261,14 @@ def force_charselect(client, target, char=""):
             raise
         try:
             target.change_character(cid, True)
+            target.send_ooc(f"You have been forced to {char}.")
+            client.send_ooc(f"Forced [{target.id}] to be {char}.")
         except ClientError:
             raise
     else:
         target.char_select()
+        target.send_ooc(f"You were forced to the Character Select Screen.")
+        client.send_ooc(f"Forced [{target.id}] to CSS.")
 
 
 def ooc_cmd_randomchar(client, arg):

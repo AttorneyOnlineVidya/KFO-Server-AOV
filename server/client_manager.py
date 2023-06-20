@@ -315,18 +315,18 @@ class ClientManager:
             if char_id != -1:
                 if not self.area.area_manager.is_valid_char_id(char_id):
                     raise ClientError("Invalid character ID.")
-                if not self.is_mod and self not in self.area.owners:
-                    if len(self.charcurse) > 0:
-                        if char_id not in self.charcurse:
-                            raise ClientError("Character not available.")
-                        force = True
-                    if not self.area.is_char_available(char_id):
-                        if force:
-                            for client in self.area.clients:
-                                if client.char_id == char_id:
-                                    client.char_select()
-                        else:
-                            raise ClientError("Character not available.")
+                #if not self.is_mod and self not in self.area.owners:
+                if len(self.charcurse) > 0:
+                    if char_id not in self.charcurse:
+                        raise ClientError("Character not available.")
+                    force = True
+                if not self.area.is_char_available(char_id):
+                    if force:
+                        for client in self.area.clients:
+                            if client.char_id == char_id:
+                                client.char_select()
+                    else:
+                        raise ClientError("Character not available.")
             # We're trying to spectate out of our own accord and either hub or area does not allow spectating.
             if (
                 char_id == -1
