@@ -35,6 +35,7 @@ __all__ = [
     "ooc_cmd_lastchar",
     "ooc_cmd_warn",
     "ooc_cmd_webhook",
+    "ooc_cmd_multiclients",
 ]
 
 
@@ -630,6 +631,7 @@ def ooc_cmd_warn(client, arg):
             client.send_ooc(
                 'No targets to warn!')
 
+
 @mod_only()
 def ooc_cmd_webhook(client, arg):
     """
@@ -642,3 +644,29 @@ def ooc_cmd_webhook(client, arg):
         client.server.advert_webhook = True
     
     client.send_ooc(f"Advert webhooks set to {client.server.advert_webhook}.")
+
+
+@mod_only()
+def ooc_cmd_multiclients(client, arg):
+    """
+    Get all the multi-clients of the IPID provided, detects multiclients on the same hardware even if the IPIDs are different.
+    Usage: /multiclients <ipid>
+    """
+    found_clients = set()
+    for c in client.server.client_manager.clients:
+        if arg == str(c.ipid):
+            found_clients.add(c)
+            found_clients |= set(client.server.client_manager.get_multiclients(c.ipid, c.hdid))
+
+    info = f"Clients belonging to {arg}:"
+    for c in found_clients:
+        info += f"\n[{c.id}] "
+        if c.showname != c.char_name:
+            info += f'"{c.showname}" ({c.char_name})'
+        else:
+            info += f"{c.showname}"
+        info += f" ({c.ipid})"
+        if c.name != "":
+            info += f": {c.name}"
+    info += f"\nMatched {len(found_clients)} online clients."
+    client.send_ooc(info)

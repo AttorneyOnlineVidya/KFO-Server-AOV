@@ -59,6 +59,7 @@ class TsuServer3:
         self.char_list = None
         self.char_emotes = None
         self.music_list = []
+        self.music_whitelist = []
         self.backgrounds = None
         self.zalgo_tolerance = None
         self.ipRange_bans = []
@@ -219,7 +220,7 @@ class TsuServer3:
             asn = "Loopback"
 
         for line, rangeBan in enumerate(self.ipRange_bans):
-            if rangeBan != "" and ((peername.startswith(rangeBan) and rangeBan.endswith('.')) or asn == rangeBan):
+            if rangeBan != "" and ((peername.startswith(rangeBan) and (rangeBan.endswith('.') or rangeBan.endswith(':'))) or asn == rangeBan):
                 msg = "BD#"
                 msg += "Abuse\r\n"
                 msg += f"ID: {line}\r\n"
