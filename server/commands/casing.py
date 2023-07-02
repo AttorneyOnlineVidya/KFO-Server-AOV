@@ -58,6 +58,8 @@ def ooc_cmd_doc(client, arg):
     Usage: /doc [url]
     """
     if len(arg) == 0:
+        if client.char_id == -1:
+            raise ClientError("You may not do that while spectating!")
         client.send_ooc(f"Document: {client.area.doc}")
         database.log_area("doc.request", client, client.area)
     else:
