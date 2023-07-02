@@ -12,14 +12,9 @@ If you encounter any issues or bugs, please contact AOV staff via server Mod Cal
 	- Cutscenes (or "Demos") can now be created and played on server. See below for more instructions.
 * **Other Functionality and Improvements**
 	- Various other new or improved commands are listed below. For a full command list, check [here](https://github.com/AttorneyOnlineVidya/KFO-Server-AOV/blob/master/docs/commands.md)
-		- Note that not all commands in the above link will be available on AOV, either because they're redundant or just fucking worthless.
-* **Sneaking / Movement Announcements Removal**
-	- For some reason, base KFO-Server _really_ wants everyone else to know when you change areas and announce as such in OOC. 
-	- We've deleted this because no one gives a fuck when you move area and it clogs up OOC.
-* **Various Emoji Removal**
-	- For some other reason, base KFO-Server has emojis in almost every command. We've deleted most of these.
+		- Note that not all commands in the above link will be available on AOV, either because they're redundant or not appropriate.
 * **Hub System Disabled**
-	- The concept of having multiple hubs containing multiple areas. Completely unnecessary and generally turned off, so don't worry about it.
+	- The concept of having multiple hubs with a separate collection of areas. Unnecessary for AOV and generally turned off, so don't worry about it.
 * **DJ and Looping Music**
 	- DJ is dead. `/play` now loops by default. Use `/play1` if you want to play a song only once.
 * **Discord Webhooks**
