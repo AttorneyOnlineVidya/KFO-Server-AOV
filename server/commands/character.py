@@ -1243,7 +1243,7 @@ def ooc_cmd_webfiles(client, arg):
         raise ClientError("You must specify a target. Use /webfiles <id>")
 
 
-@mod_only(hub_owners=True)
+@mod_only()
 def ooc_cmd_charlist(client, arg):
     """
     Load a character list. /charlists to see available character lists.
