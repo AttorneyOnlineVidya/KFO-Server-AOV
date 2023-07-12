@@ -105,8 +105,8 @@ If you encounter any issues or bugs, please contact AOV staff via server Mod Cal
     - Set an area description that appears to the user any time they enter the area.
 		- Could be used to immediately detail the current case format and summary to incoming users.
 * **edit\_ambience** `[tog]`
-    - Toggle edit mode for setting ambience. Playing music will set it as the area's ambience.
-    - tog can be `on`, `off` or empty.
+    - Toggle edit mode for setting ambience.
+    - Playing music with this on will then set it as the area's 'ambience', playing as SFX rather than music effectively allowing for background tracks.
 * **lights** `[tog]`
     - Toggle lights for this area. If lights are off, players will not be able to use `/getarea` or see evidence.
     - You can change `/bg`, `/desc` and `/pos_lock` of the area when its dark and it will remember it next time you turn the lights off.
