@@ -854,6 +854,10 @@ class AOProtocol(asyncio.Protocol):
             # Set anim to narration
             anim = ""
 
+        fuckoff = ("█", "╗", "░", "║")
+        if any(f in text.lstrip() for f in fuckoff):
+            self.client.send_ooc("Fuck off.")
+            return
         if text.lower().lstrip().startswith("/w"):
             if (
                 not self.client.area.can_whisper
