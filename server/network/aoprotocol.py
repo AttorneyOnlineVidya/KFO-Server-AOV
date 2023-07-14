@@ -1332,6 +1332,10 @@ class AOProtocol(asyncio.Protocol):
                 "Your message was not sent for safety reasons: you left space before that slash."
             )
             return
+        fuckoff = ("█", "╗", "░", "║")
+        if any(f in args[1].lstrip() for f in fuckoff):
+            self.client.send_ooc("Fuck off.")
+            return
         database.log_area("chat.ooc", self.client,
                           self.client.area, message=args[1])
         if args[1].startswith("/"):
