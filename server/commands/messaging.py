@@ -147,9 +147,13 @@ def ooc_cmd_need(client, arg):
         raise ClientError("You have advertisements muted.")
     if len(arg) == 0:
         raise ArgumentError("You must specify what you need.")
+    if not client.can_call_case():
+        client.send_ooc("Please wait 60 seconds between case announcements!")
+        return
     client.server.broadcast_need(client, arg)
     if client.server.advert_webhook == True:
         client.server.webhooks.advert(client.char_name, client.area, msg=arg)
+    client.set_case_call_delay()
     database.log_area("chat.announce.need", client, client.area, message=arg)
 
 
