@@ -1,22 +1,3 @@
-# KFO-Server, an Attorney Online server
-#
-# Copyright (C) 2020 Crystalwarrior <varsash@gmail.com>
-#
-# Derivative of tsuserver3, an Attorney Online server. Copyright (C) 2016 argoneus <argoneuscze@gmail.com>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 from server import database
 from server import commands
 from server.evidence import EvidenceList
@@ -35,7 +16,7 @@ import os
 import datetime
 import logging
 
-logger = logging.getLogger("events")
+logger = logging.getLogger("area")
 
 
 class Area:
@@ -108,7 +89,7 @@ class Area:
                     self.caller.send_ooc(
                         f"[Timer {self.id}] An internal error occurred: {ex}. Please inform the staff of the server about the issue."
                     )
-                    logger.exception("Exception while running a command")
+                    logger.error("Exception while running a command")
                     # Command execution critically failed somewhere. Clear out all commands so the timer doesn't screw with us.
                     self.commands.clear()
                     # Even tho self.commands.clear() is going to break us out of the while loop, manually return anyway just to be safe.
@@ -124,8 +105,10 @@ class Area:
 
         # Initialize prefs
         self.background = "default"
+        self.overlay = ""
         self.pos_lock = []
         self.bg_lock = False
+        self.overlay_lock = False
         self.evidence_mod = "FFA"
         self.can_cm = False
         self.locking_allowed = False
@@ -352,7 +335,7 @@ class Area:
             owner.send_ooc(
                 f"[Area {self.id}] An internal error occurred: {ex}. Please inform the staff of the server about the issue."
             )
-            logger.exception("Exception while running a command")
+            logger.error("Exception while running a command")
 
     def abbreviate(self):
         """Abbreviate our name."""
@@ -396,6 +379,8 @@ class Area:
             self.o_background = self.background
         if "bg_lock" in area:
             self.bg_lock = area["bg_lock"]
+        if "overlay_lock" in area:
+            self.overlay_lock = area["overlay_lock"]
         if "pos_lock" in area:
             _pos_lock = area["pos_lock"].split(" ")
 
@@ -585,6 +570,7 @@ class Area:
         if len(self.pos_lock) > 0:
             area["pos_lock"] = " ".join(map(str, self.pos_lock))
         area["bg_lock"] = self.bg_lock
+        area["overlay_lock"] = self.overlay_lock
         area["evidence_mod"] = self.evidence_mod
         area["can_cm"] = self.can_cm
         area["locking_allowed"] = self.locking_allowed
@@ -1611,34 +1597,76 @@ class Area:
             self.hp_pro = val
         self.send_command("HP", side, val)
 
-    def change_background(self, bg, silent=False):
+    def change_background(self, bg, silent=False, overlay="", mode=-1):
         """
-        Set the background.
-        :param bg: background name
+        Set the background and/or overlay.
+        
+        parameters:
+        bg:      background name
+        silent:  should send the pre 2.8 packet or the new one?
+        overlay: overlay name (optional)
+        
         :raises: AreaError if `bg` is not in background list
+        
+        BN packet implementation:
+        
+        Before 2.8 (Changes after sending a IC message):
+        BN # <background name>
+        
+        AO 2.8 (Clear viewport and update/change background position):
+        BN # <background name> # <pos>
+        
+        AOG 1.0 (Put a additional image on top of the character):
+        BN # <background name> # <pos> # <overlay:str> # <mode:int>
+        
+        mode: 0 = pre 2.8 version (change background after IC message)
+              1 = 2.8 version (Change background immediately, clearing the viewport)
+              2 = Change background without clearing the viewport
+              3 = Change the overlay immediately and the background in the next IC message
+
+        The client should be expected to implement at least the first two.
+
+        
         """
         if self.use_backgrounds_yaml:
-            for client in self.clients:
-                if not client.is_mod and client not in self.owners:
-                    if len(self.server.backgrounds) <= 0:
-                        raise AreaError(
-                            'backgrounds.yaml failed to initialize!'
-                        )
-                    if bg.lower() not in (name.lower() for name in self.server.backgrounds):
-                        raise AreaError(
-                            f'Invalid background name {bg}.'
-                        )
+            if len(self.server.backgrounds) <= 0:
+                raise AreaError(
+                    'backgrounds.yaml failed to initialize! Please set "use_backgrounds_yaml" to "false" in the config/config.yaml, or create a new "backgrounds.yaml" list in the "config/" folder.'
+                )
+            if bg.lower() not in (name.lower() for name in self.server.backgrounds):
+                raise AreaError(
+                    f'Invalid background name {bg}.\nPlease add it to the "backgrounds.yaml" or change the background name for area [{self.id}] {self.name}.'
+                )
+        # TODO: Make overlay use  "self.use_overlay_yaml". For now it guessses that it is always disabled.
+
         if self.dark:
             self.background_dark = bg
         else:
             self.background = bg
-        for client in self.clients:
-            # Update all clients to the pos lock
-            if len(self.pos_lock) > 0 and client.pos not in self.pos_lock:
-                client.change_position(self.pos_lock[0])
-            if silent:
+
+        if len(self.pos_lock) > 0:
+            for client in self.clients:
+                # Update all clients to the pos lock
+                if client.pos not in self.pos_lock:
+                    client.change_position(self.pos_lock[0])
+
+        if overlay != "":
+            # In case "mode" is unspecified
+            if mode == -1:
+                if silent:
+                    mode = 0
+                else:
+                    mode = 1
+            for client in self.clients:
+                client.send_command("BN", bg, client.pos, overlay, mode)
+
+        # Pre AOG packet fallback
+        # In case overlay wasn't specified
+        elif silent:
+            for client in self.clients:
                 client.send_command("BN", bg)
-            else:
+        else:
+            for client in self.clients:
                 client.send_command("BN", bg, client.pos)
 
     def change_status(self, value):
@@ -2107,13 +2135,33 @@ class Area:
                 client.send_ooc(
                     f"[Demo] An internal error occurred: {ex}. Please inform the staff of the server about the issue."
                 )
-                logger.exception("Exception while running a command")
+                logger.error("Exception while running a command")
                 self.stop_demo()
                 return
         elif len(client.broadcast_list) > 0:
             for area in client.broadcast_list:
+                if header == "MS":
+                    # If we're on narration pos
+                    if args[5] == "":
+                        if area.last_ic_message is not None:
+                            # Set the pos to last message's pos
+                            args[5] = area.last_ic_message[5]
+                        else:
+                            # Set the pos to the 0th pos-lock
+                            if len(self.pos_lock) > 0:
+                                args[5] = self.pos_lock[0]
                 area.send_command(header, *args)
         else:
+            if header == "MS":
+                # If we're on narration pos
+                if args[5] == "":
+                    if self.last_ic_message is not None:
+                        # Set the pos to last message's pos
+                        args[5] = self.last_ic_message[5]
+                    else:
+                        # Set the pos to the 0th pos-lock
+                        if len(self.pos_lock) > 0:
+                            args[5] = self.pos_lock[0]
             self.send_command(header, *args)
         # Proceed to next demo line
         self.play_demo(client)
