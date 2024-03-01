@@ -176,6 +176,12 @@ class ClientManager:
             # The currently playing audio for this client. Keeping track so we don't replay the same audio erroneously
             # (such as in the case of music_autoplay areas)
             self.playing_audio = ["", ""]
+            
+            # rainbowtext hell
+            self.rainbow = False
+            
+            # rock paper scissors choice
+            self.rps_choice = ""
 
         def send_raw_message(self, msg):
             """
