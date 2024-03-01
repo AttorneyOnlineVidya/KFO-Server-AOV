@@ -126,13 +126,11 @@ class AreaManager:
 
         self.timer = self.Timer()
         
-        # RPS-5 rules as default
+        # RPS rules as default
         self.rps_rules = [
-            ["rock", "scissors", "lizard"],
-            ["paper", "rock", "spock"],
-            ["scissors", "paper", "lizard"],
-            ["lizard", "paper", "spock"],
-            ["spock", "scissors", "rock"],
+            ["rock", "scissors"],
+            ["scissors", "paper"],
+            ["paper", "rock"],
         ]
 
     @property

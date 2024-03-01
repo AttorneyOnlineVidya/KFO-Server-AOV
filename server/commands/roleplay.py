@@ -579,7 +579,7 @@ def ooc_cmd_rps(client, arg):
 
     # Look for our opponent if none is present
     if not target:
-        msg = f'{client.char_name} wants to play Rock Paper Scissors!\n❕ Do /rps [choice] to challenge them! ❕'
+        msg = f'{client.char_name} wants to play Rock Paper Scissors!\n Do /rps [choice] to challenge them!'
         client.area.broadcast_ooc(msg)
         client.send_ooc(f'You picked {client.rps_choice}!')
         return
@@ -608,7 +608,7 @@ def ooc_cmd_rps(client, arg):
 
     # Congratulate our winner or announce a tie
     if winner:
-        msg += f"\n  {client.char_name} WINS!!!🏆"
+        msg += f"\n  {winner.char_name} wins!"
     else:
         msg += f"\n  It's a tie!"
 
