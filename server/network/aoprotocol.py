@@ -314,6 +314,7 @@ class AOProtocol(asyncio.Protocol):
 
         self.client.send_done()
         self.client.send_motd()
+        self.client.is_it()
         self.client.send_hub_info()
         # TODO: move this code to the area itself so it can handle whatever it needs to later
         if self.client.area.music_autoplay:
@@ -890,6 +891,8 @@ class AOProtocol(asyncio.Protocol):
             msg = self.client.disemvowel_message(msg)
         if self.client.emoji:
             msg = self.client.emoji_message(msg)
+        if self.client.aussie:
+            msg = self.client.aussie_message(msg)
         if self.client.rainbow:
             msg = self.client.rainbow_message(msg)
         if evidence:
@@ -1278,6 +1281,8 @@ class AOProtocol(asyncio.Protocol):
             effect,
         )
 
+        self.client.battlepass_check()
+
     def net_cmd_ct(self, args):
         """OOC Message
 
@@ -1486,6 +1491,7 @@ class AOProtocol(asyncio.Protocol):
                     ):
                         return
             self.client.change_music(*args)
+            self.client.battlepass_check()
         except ClientError as ex:
             self.client.send_ooc(ex)
 

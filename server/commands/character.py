@@ -116,10 +116,14 @@ def ooc_cmd_pos(client, arg):
     if len(arg) == 0:
         client.send_ooc(f"Your current position is {client.pos}.")
     else:
-        try:
-            client.change_position(arg)
-        except ClientError:
-            raise
+        # april
+        if arg == "cuc":
+            client.change_position("../Blackout/cuc")
+        else:
+            try:
+                client.change_position(arg)
+            except ClientError:
+                raise
         client.area.broadcast_evidence_list()
         client.send_ooc("Position changed.")
 

@@ -124,7 +124,7 @@ class Area:
         self.blankposting_forced = False
         self.hp_def = 10
         self.hp_pro = 10
-        self.doc = "No document."
+        self.doc = "No document. Find a template at https://aovidya.pw/templates "
         self.status = "IDLE"
         self.move_delay = 0
         self.hide_clients = False
