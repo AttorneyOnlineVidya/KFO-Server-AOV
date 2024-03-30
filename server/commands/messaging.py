@@ -175,6 +175,7 @@ def ooc_cmd_pm(client, arg):
     """
     Send a private message to another online user. These messages are not
     logged by the server owner.
+    The Target Types <ooc-name> and <char-name> work only if the target is in the same area.
     Usage: /pm <id|ooc-name|char-name> <message>
     """
     args = arg.split()
@@ -185,17 +186,17 @@ def ooc_cmd_pm(client, arg):
             'Not enough arguments. use /pm <target> <message>. Target should be ID, OOC-name or char-name. Use /getarea for getting info like "[ID] char-name".'
         )
     targets = client.server.client_manager.get_targets(
-        client, TargetType.CHAR_NAME, arg, True
+        client, TargetType.CHAR_NAME, arg, local=True
     )
     key = TargetType.CHAR_NAME
     if len(targets) == 0 and args[0].isdigit():
         targets = client.server.client_manager.get_targets(
-            client, TargetType.ID, int(args[0]), False
+            client, TargetType.ID, int(args[0]), all_hub=True
         )
         key = TargetType.ID
     if len(targets) == 0:
         targets = client.server.client_manager.get_targets(
-            client, TargetType.OOC_NAME, arg, True
+            client, TargetType.OOC_NAME, arg, local=True
         )
         key = TargetType.OOC_NAME
     if len(targets) == 0:
@@ -217,7 +218,7 @@ def ooc_cmd_pm(client, arg):
     else:
         if c.is_mod:
             c.send_ooc(
-                "📨PM from {} (ID: {}, IPID: {}) in {} ({}): {}".format(
+                "PM from {} (ID: {}, IPID: {}) in {} ({}): {}".format(
                     client.name,
                     client.id,
                     client.ipid,
@@ -228,11 +229,11 @@ def ooc_cmd_pm(client, arg):
             )
         else:
             c.send_ooc(
-                "📨PM from {} (ID: {}) in {} ({}): {}".format(
+                "PM from {} (ID: {}) in {} ({}): {}".format(
                     client.name, client.id, client.area.name, client.showname, msg
                 )
             )
-        client.send_ooc("📤PM sent to {}. Message: {}".format(args[0], msg))
+        client.send_ooc("PM sent to {}. Message: {}".format(args[0], msg))
 
 
 def ooc_cmd_mutepm(client, arg):

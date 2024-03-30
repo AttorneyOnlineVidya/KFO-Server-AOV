@@ -14,6 +14,12 @@ __all__ = [
     "ooc_cmd_washhands",
     "ooc_cmd_rainbow",
     "ooc_cmd_emoji",
+    "ooc_cmd_aussie",
+    "ooc_cmd_bp",
+    "ooc_cmd_birdup",
+    "ooc_cmd_birddown",
+    "ooc_cmd_prank",
+    "ooc_cmd_tag",
 ]
 
 
@@ -202,7 +208,7 @@ def ooc_cmd_emoji(client, arg):
         client.send_ooc("Emoji Mode DEACTIVATED.")
     else:
         client.emoji = True
-        client.send_ooc(f"Emoji Mode ACTIVATED.")
+        client.send_ooc("Emoji Mode ACTIVATED.")
 
 @mod_only()
 def ooc_cmd_dank(client, arg):
@@ -260,3 +266,143 @@ def ooc_cmd_dank(client, arg):
         f"==== ALERT ====\r\n{ann}\r\n=================",
         "1",
     )
+
+#April
+def ooc_cmd_aussie(client, arg):
+    """
+    Go down under.
+    Usage: /aussie
+    """
+    if arg == "*":
+        if client.is_mod:
+            targets = [c for c in client.area.clients]
+            for c in targets:
+                if c.aussie:
+                    c.aussie = False
+                    c.send_ooc("OI OI OI!")
+                else:
+                    c.aussie = True
+                    c.send_ooc("AUSSIE AUSSIE AUSSIE!")
+                    c.send_command("MC", 
+                            "https://files.catbox.moe/gkq4yg.mp3", 
+                            -1, 
+                            "", 
+                            2, 
+                            1, 
+                            0)
+        else:
+            client.send_ooc("Bugger off.")
+    else:
+        if client.aussie:
+            client.aussie = False
+            client.send_ooc("OI OI OI!")
+        else:
+            client.aussie = True
+            client.send_ooc("AUSSIE AUSSIE AUSSIE!")
+            client.send_command("MC", 
+                            "https://files.catbox.moe/gkq4yg.mp3", 
+                            -1, 
+                            "", 
+                            2, 
+                            1, 
+                            0)
+
+
+def ooc_cmd_bp(client, arg):
+    """
+    Show your Bird Level progress.
+    Usage: /bp
+    """
+    client.send_ooc(f'BIRD LEVEL: {client.BPlevel}')
+    client.send_ooc('PROGRESS: ' + '▓'*client.BPprogress + '░'*(client.BPding - client.BPprogress))
+
+@mod_only()
+def ooc_cmd_birdup(client, arg):
+    """
+    You're watching Bird Up, the laziest April Fools on AOV.
+    """
+    import random
+    birds = ["Chicken", 
+            "Quelea", 
+            "Dove",
+            "Robin",
+            "Pheasant",
+            "Blackbird",
+            "Sparrow",
+            "Starling",
+            "Swift",
+            "Warbler",
+            "Cardinal",
+            "Jay",
+            "Crow",
+            "Mockingbird",
+            "Magpie",
+            "Junco",
+            "Chickadee",
+            "Nuthatch",
+            "Titmouse",
+            "Wren",
+            "Finch",
+            "Woodpecker",
+            "Hen",
+            "Tern",
+            "Eagle",
+            "Hawk",
+            "Heron",
+            "Nightjar",
+            "Kakapo",
+            "Hornbill"]
+    
+    targets = [c for c in client.area.clients]
+    for c in targets:
+            c.used_showname_command = True
+            c.showname = random.choice(birds)
+            c.send_ooc(f"CAW CAW")
+
+@mod_only()
+def ooc_cmd_birddown(client, arg):
+    targets = [c for c in client.area.clients]
+    for c in targets:
+            c.used_showname_command = False
+            c.showname = ""
+            c.send_ooc(f"BANG BANG")
+
+@mod_only()
+def ooc_cmd_prank(client, arg):
+    targets = [c for c in client.area.clients]
+    for c in targets:
+        c.send_command("MC", 
+                        "https://files.catbox.moe/9yrocb.mp3", 
+                        -1, 
+                        "", 
+                        2, 
+                        1, 
+                        0)
+        
+def ooc_cmd_tag(client, arg):
+    """
+    Tag someone.
+    /tag [id]
+    """
+    if not client.tag:
+        raise ArgumentError('You cannot tag someone if you are not It!')
+    if len(arg) == 0:
+        raise ArgumentError('You must specify a target ID.')
+    try:
+        targets = client.server.client_manager.get_targets(
+            client, TargetType.ID, int(arg), False)
+    except Exception:
+        raise ArgumentError('You must specify a target. Use /tag <id>.')
+    if targets:
+        for c in targets:
+            if c.id == client.id:
+                raise ArgumentError('You cannot tag yourself, dumbass.')
+            elif c.tag:
+                client.send_ooc(f'{c.char_name} is already It!')
+            else:
+                c.tag = True
+                c.send_ooc(f"{client.char_name} tagged you! You're It!")
+                client.send_ooc(f'You tagged {c.char_name}! You are no longer It!')
+                client.tag = False
+    else:
+        client.send_ooc('No targets found.')
