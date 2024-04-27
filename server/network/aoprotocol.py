@@ -1281,8 +1281,6 @@ class AOProtocol(asyncio.Protocol):
             effect,
         )
 
-        self.client.battlepass_check()
-
     def net_cmd_ct(self, args):
         """OOC Message
 
@@ -1491,7 +1489,6 @@ class AOProtocol(asyncio.Protocol):
                     ):
                         return
             self.client.change_music(*args)
-            self.client.battlepass_check()
         except ClientError as ex:
             self.client.send_ooc(ex)
 
