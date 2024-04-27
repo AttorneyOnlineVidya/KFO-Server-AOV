@@ -15,10 +15,6 @@ __all__ = [
     "ooc_cmd_rainbow",
     "ooc_cmd_emoji",
     "ooc_cmd_aussie",
-    "ooc_cmd_bp",
-    "ooc_cmd_birdup",
-    "ooc_cmd_birddown",
-    "ooc_cmd_prank",
     "ooc_cmd_tag",
 ]
 
@@ -283,13 +279,6 @@ def ooc_cmd_aussie(client, arg):
                 else:
                     c.aussie = True
                     c.send_ooc("AUSSIE AUSSIE AUSSIE!")
-                    c.send_command("MC", 
-                            "https://files.catbox.moe/gkq4yg.mp3", 
-                            -1, 
-                            "", 
-                            2, 
-                            1, 
-                            0)
         else:
             client.send_ooc("Bugger off.")
     else:
@@ -299,85 +288,16 @@ def ooc_cmd_aussie(client, arg):
         else:
             client.aussie = True
             client.send_ooc("AUSSIE AUSSIE AUSSIE!")
-            client.send_command("MC", 
-                            "https://files.catbox.moe/gkq4yg.mp3", 
-                            -1, 
-                            "", 
-                            2, 
-                            1, 
-                            0)
 
 
-def ooc_cmd_bp(client, arg):
-    """
-    Show your Bird Level progress.
-    Usage: /bp
-    """
-    client.send_ooc(f'BIRD LEVEL: {client.BPlevel}')
-    client.send_ooc('PROGRESS: ' + '▓'*client.BPprogress + '░'*(client.BPding - client.BPprogress))
+#def ooc_cmd_bp(client, arg):
+#    """
+#    Show your Bird Level progress.
+#    Usage: /bp
+#    """
+#    client.send_ooc(f'BIRD LEVEL: {client.BPlevel}')
+#    client.send_ooc('PROGRESS: ' + '▓'*client.BPprogress + '░'*(client.BPding - client.BPprogress))
 
-@mod_only()
-def ooc_cmd_birdup(client, arg):
-    """
-    You're watching Bird Up, the laziest April Fools on AOV.
-    """
-    import random
-    birds = ["Chicken", 
-            "Quelea", 
-            "Dove",
-            "Robin",
-            "Pheasant",
-            "Blackbird",
-            "Sparrow",
-            "Starling",
-            "Swift",
-            "Warbler",
-            "Cardinal",
-            "Jay",
-            "Crow",
-            "Mockingbird",
-            "Magpie",
-            "Junco",
-            "Chickadee",
-            "Nuthatch",
-            "Titmouse",
-            "Wren",
-            "Finch",
-            "Woodpecker",
-            "Hen",
-            "Tern",
-            "Eagle",
-            "Hawk",
-            "Heron",
-            "Nightjar",
-            "Kakapo",
-            "Hornbill"]
-    
-    targets = [c for c in client.area.clients]
-    for c in targets:
-            c.used_showname_command = True
-            c.showname = random.choice(birds)
-            c.send_ooc(f"CAW CAW")
-
-@mod_only()
-def ooc_cmd_birddown(client, arg):
-    targets = [c for c in client.area.clients]
-    for c in targets:
-            c.used_showname_command = False
-            c.showname = ""
-            c.send_ooc(f"BANG BANG")
-
-@mod_only()
-def ooc_cmd_prank(client, arg):
-    targets = [c for c in client.area.clients]
-    for c in targets:
-        c.send_command("MC", 
-                        "https://files.catbox.moe/9yrocb.mp3", 
-                        -1, 
-                        "", 
-                        2, 
-                        1, 
-                        0)
         
 def ooc_cmd_tag(client, arg):
     """

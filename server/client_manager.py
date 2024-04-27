@@ -182,11 +182,6 @@ class ClientManager:
             # rock paper scissors choice
             self.rps_choice = ""
 
-            # april battle pass
-            self.BPding = 2
-            self.BPlevel = 1
-            self.BPprogress = 0
-
     
         def send_raw_message(self, msg):
             """
@@ -1324,6 +1319,8 @@ class ClientManager:
                 info += "\r\n"
                 if c == self:
                     info += "  ◽ "
+                #elif c.tag:
+                #    info += "  ❗ "
                 else:
                     info += "  ◾ "
                 if c in area.afkers:
@@ -1342,7 +1339,6 @@ class ClientManager:
                     info += f'"{c.showname}" ({c.char_name})'
                 else:
                     info += f"{c.showname}"
-                info += f" ~BP{c.BPlevel}~"
                 #if c.pos != "":
                 #    info += f" <{c.pos}>"
                 if self.is_mod:
@@ -1931,7 +1927,6 @@ class ClientManager:
             return message
         
         #April
-
         def aussie_message(self, message):
             select = {"a": "ɐ",
                       "b": "q",
@@ -1968,28 +1963,6 @@ class ClientManager:
             message = message[::-1]
             return message
             
-        def bp_level_up(self):
-            self.send_command("MC", 
-                        "https://github.com/yemta/yemta.github.io/blob/main/data/birdup.mp3?raw=true", 
-                        -1, 
-                        "", 
-                        2, 
-                        1, 
-                        0)
-    
-        def battlepass_check(self):
-            if self.area.status == "CASING":
-                if self.BPprogress == self.BPding:
-                    self.BPprogress = 0
-                    self.BPlevel += 1
-                    self.bp_level_up()
-                    if self.BPlevel % 2:
-                        self.BPding += 1
-                    self.send_ooc(
-                            f"===============\nBIRD UP!\nYOU ARE NOW BIRD LEVEL {self.BPlevel}!\nUSE /bp TO SEE PROGRESS!\n=================="
-                        )
-                else:
-                    self.BPprogress += 1
 
     def __init__(self, server):
         self.clients = set()
