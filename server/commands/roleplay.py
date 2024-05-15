@@ -681,8 +681,8 @@ def ooc_cmd_timer(client, arg):
     Add or subtract time with `/timer <id> +5s`.
     Usage:
     /timer <id> [+][time] [start|pause/stop|unset/hide]
-    /timer <id> /clear - Clear all timers
     /timer <id> /cmd - Use a command when timer expires
+    /timer <id> /clear - Clear timer commands
     """
 
     args = shlex.split(arg)
