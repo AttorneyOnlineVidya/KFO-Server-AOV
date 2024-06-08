@@ -70,7 +70,7 @@ battle_effects = [
     "healstatus",
 ]
 
-
+@mod_only(hub_owners=True)
 def send_info_fighter(client):
     """
     Prepare the message about fighter info
@@ -88,8 +88,9 @@ def send_info_fighter(client):
                 msg += f"- {effect}\n"
         msg += "\n"
     client.send_ooc(msg)
-    
 
+ 
+@mod_only(hub_owners=True)
 def send_stats_fighter(client):
     """
     Prepare the message about fighter stats
@@ -101,6 +102,7 @@ def send_stats_fighter(client):
     client.send_ooc(msg)
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_choose_fighter(client, arg):
     """
     Allow you to choose a fighter from the list of the server.
@@ -118,6 +120,7 @@ def ooc_cmd_choose_fighter(client, arg):
         client.send_ooc("No fighter has this name!")
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_info_fighter(client, arg):
     """
     Send info about your fighter.
@@ -129,6 +132,7 @@ def ooc_cmd_info_fighter(client, arg):
         client.send_ooc("You have to choose a fighter first!")
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_create_fighter(client, arg):
     """
     Allow you to create a fighter and to customize its stats.
@@ -187,6 +191,7 @@ def ooc_cmd_create_fighter(client, arg):
         client.send_ooc(f"{args[0]} has been created!")
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_create_move(client, arg):
     """
     Allow you to create a move for a fighter.
@@ -411,6 +416,7 @@ def ooc_cmd_battle_config(client, arg):
    client.send_ooc(f"{args[0].lower()} has been changed to {args[1]}")
 
 
+@mod_only(hub_owners=True)
 def send_battle_info(client):
     """
     Prepare the message about battle info
@@ -451,6 +457,7 @@ def send_battle_info(client):
     return msg
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_battle_info(client, arg):
     """
     Send you info about the battle.
@@ -463,6 +470,7 @@ def ooc_cmd_battle_info(client, arg):
         client.send_ooc("You are not fighting!")
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_fight(client, arg):
     """
     Allow you to join the battle or rejoin if you disconnected!
@@ -537,6 +545,7 @@ def ooc_cmd_refresh_battle(client, arg):
     client.send_ooc("The battle has been refreshed!")
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_surrender(client, arg):
     """
     A command to surrend from the current battle.
@@ -645,6 +654,7 @@ def ooc_cmd_force_skip_move(client, arg):
             client.area.battle_started = False
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_skip_move(client, arg):
     """
     Allow you to skip the turn
@@ -671,6 +681,7 @@ def ooc_cmd_skip_move(client, arg):
             client.area.battle_started = False
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_close_guild(client, arg):
     """
     Allow GM to close all guilds if arg is "", or to close a specific guild is arg is GuildName
@@ -690,6 +701,7 @@ def ooc_cmd_close_guild(client, arg):
         client.send_ooc("Guild not found!")
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_battle_effects(client, arg):
     """
     Show all available battle effects
@@ -701,6 +713,7 @@ def ooc_cmd_battle_effects(client, arg):
     client.send_ooc(msg)
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_leave_guild(client, arg):
     """
     Allow you to leave your current guid
@@ -753,6 +766,7 @@ def ooc_cmd_leave_guild(client, arg):
             client.send_ooc("You are not a GM or a Guild Leader")
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_join_guild(client, arg):
     """
     Allow the guild leader to let a fighter to join the guild
@@ -802,6 +816,7 @@ def ooc_cmd_join_guild(client, arg):
         send_info_guild(client)
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_create_guild(client, arg):
     """
     Allow you to create a guild
@@ -822,6 +837,7 @@ def ooc_cmd_create_guild(client, arg):
     send_info_guild(client)
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_info_guild(client, arg):
     """
     Send info about your guild
@@ -838,6 +854,7 @@ def ooc_cmd_info_guild(client, arg):
     send_info_guild(client)
 
 
+@mod_only(hub_owners=True)
 def send_info_guild(client):
     guild = client.battle.guild
 
@@ -856,6 +873,7 @@ def send_info_guild(client):
     client.send_ooc(msg)
 
 
+@mod_only(hub_owners=True)
 def ooc_cmd_use_move(client, arg):
     """
     This command will let you use a move during a battle!
@@ -924,6 +942,7 @@ def ooc_cmd_use_move(client, arg):
             client.area.battle_started = False
 
 
+@mod_only(hub_owners=True)
 def battle_send_ic(client, msg, effect="", shake=0, offset=0):
     """
     A function used to send battle information in IC
@@ -980,6 +999,7 @@ def battle_send_ic(client, msg, effect="", shake=0, offset=0):
     )
 
 
+@mod_only(hub_owners=True)
 def start_battle_animation(area):
     # first of all we sort the fighters compared to their speed.
     fighter_speed = {client: client.battle.spe for client in area.fighters}

@@ -226,6 +226,7 @@ class Area:
         self.music_looping = 0
         self.music_effects = 0
         self.evi_list = EvidenceList()
+        self.autotestimony = True
         self.testimony = []
         self.testimony_title = ""
         self.testimony_index = -1
@@ -1123,11 +1124,6 @@ class Area:
                     # Speaker always goes in front
                     charid_pair = f"{charid_pair}^0"
 
-            # rainbow text!?!?!?
-            if client.rainbow:
-                msg = client.rainbow_message(msg)
-                color = 4
-
             if (
                 msg.strip() != ""
                 or self.last_ic_message is None
@@ -1255,7 +1251,7 @@ class Area:
         )
         self.last_ic_message = args
 
-        if adding:
+        if adding and self.autotestimony:
             if len(self.testimony) >= 30:
                 client.send_ooc(
                     "Maximum testimony statement amount reached! (30)")

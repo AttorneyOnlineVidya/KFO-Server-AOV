@@ -1637,7 +1637,7 @@ class AOProtocol(asyncio.Protocol):
         database.log_area("wtce", self.client, self.client.area, message=sign)
 
         if self.client in self.client.area.owners:
-            if self.client.area.last_ic_message is not None and sign == "WT":
+            if self.client.area.last_ic_message is not None and sign == "WT" and self.client.area.autotestimony:
                 # remove centering chars and strip space chars as well as any coloring
                 msg = (
                     self.client.area.last_ic_message[4]
@@ -1662,7 +1662,7 @@ class AOProtocol(asyncio.Protocol):
                             f'-- {self.client.area.testimony_title} --\nTestimony recording started! All new messages will be recorded as testimony lines. Say "End" to stop recording.'
                         )
                         return
-            if sign == "CE":
+            if sign == "CE" and self.client.area.autotestimony:
                 if self.client.area.recording:
                     self.client.area.recording = False
                     self.client.area.broadcast_ooc(

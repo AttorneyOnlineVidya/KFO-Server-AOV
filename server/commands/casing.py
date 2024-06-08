@@ -660,28 +660,29 @@ def ooc_cmd_remote_listen(client, arg):
 
 def ooc_cmd_testimony(client, arg):
     """
-    Display the currently recorded testimony.
-    Optionally, id can be passed to move to that statement.
-    Usage: /testimony [id]
+    Display the currently recorded testimony, or turn testimony recording and playback on/off.
+    Usage: /testimony [on/off]
     """
-    if len(client.area.testimony) <= 0:
-        client.send_ooc("There is no testimony recorded!")
-        return
     args = arg.split()
     if len(args) > 0:
-        try:
-            if client.area.recording is True:
-                client.send_ooc("It is not cross-examination yet!")
-                return
-            idx = int(args[0]) - 1
-            client.area.testimony_send(idx)
-            client.area.broadcast_ooc(
-                f"{client.char_name} has moved to Statement {idx+1}."
-            )
-        except ValueError:
-            raise ArgumentError("Index must be a number!")
-        except ClientError:
-            raise
+        if arg.lower() == "on":
+            client.area.autotestimony = True
+            client.send_ooc("Testimony recording enabled.")
+            return
+        elif arg.lower() == "off":
+            client.area.autotestimony = False
+            client.area.testimony.clear()
+            client.area.testimony_title = ""
+            client.send_ooc("Testimony recording disabled.")
+            return
+        else:
+            raise ArgumentError("Use 'on' or 'off' to toggle testimony recording.")
+    
+    if len(client.area.testimony) <= 0:
+        if client.area.autotestimony:
+            client.send_ooc("There is no testimony recorded!")
+        else:
+            client.send_ooc("Testimony recording is currently disabled - use '/testimony on' to enable it.")
         return
 
     msg = "Use > IC to progress, < to backtrack, = to repeat, >3 or <3 to go to specific statements."
@@ -706,9 +707,12 @@ def ooc_cmd_testimony_start(client, arg):
     Manually start a testimony with the given title.
     Usage: /testimony_start <title>
     """
+    if not client.area.autotestimony:
+        raise ArgumentError(
+            "Testimony recording is not enabled!")
     if arg == "":
         raise ArgumentError(
-            "You must provite a title! /testimony_start <title>.")
+            "You must provide a title! /testimony_start <title>.")
     if len(arg) < 3:
         raise ArgumentError("Title must contain at least 3 characters!")
     client.area.testimony.clear()
@@ -718,6 +722,11 @@ def ooc_cmd_testimony_start(client, arg):
     client.area.broadcast_ooc(
         f'-- {client.area.testimony_title} --\nTestimony recording started! All new messages will be recorded as testimony lines. Say "End" to stop recording.'
     )
+    # Print testimony title in IC
+    client.area.send_ic(
+            showname=client.char_name,
+            msg=f"~~|-- {client.area.testimony_title} --",
+        )
 
 
 @mod_only(area_owners=True)
