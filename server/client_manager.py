@@ -569,7 +569,7 @@ class ClientManager:
             Check if the client can change music or not.
             :returns: how many seconds the client must wait to change music
             """
-            if self.is_mod or self in self.area.owners:
+            if self.is_mod:
                 return 0
 
             # Get a list of unique IPIDs from the current area to determine if the "player" is truly alone in an area (spectators or hidden players don't count).
