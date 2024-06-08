@@ -195,6 +195,9 @@ class ClientManager:
             # Battle system stuff
             self.battle = None
 
+            # Battle system stuff
+            self.battle = None
+
         def send_raw_message(self, msg):
             """
             Send a raw packet over TCP.
@@ -357,6 +360,37 @@ class ClientManager:
             players = self.server.player_count
             limit = self.server.config["playerlimit"]
             self.send_ooc(f"{players}/{limit} players online.")
+
+        def send_timer_set_time(self, timer_id=None, new_time=None, start=False):
+            if self.software == "DRO":
+                # configuration. There's no situation where these values are different on KFO-Server
+                self.send_timer_set_step_length(timer_id, -16) # 16 milliseconds, matches AO
+                self.send_timer_set_firing_interval(timer_id, 16) # 16 milliseconds, matches AO
+                
+                self.send_command("TST", timer_id, new_time) # set time
+                if start:
+                    self.send_command("TR", timer_id) # resume
+                else:
+                    self.send_command("TP", timer_id) # pause
+            else:
+                if new_time == None:
+                    self.send_command("TI", timer_id, 1, 0) # Stop timer
+                    self.send_command("TI", timer_id, 3, 0) # Hide timer
+                else:
+                    self.send_command("TI", timer_id, 2, new_time) # Show timer
+                    self.send_command("TI", timer_id, int(not start), new_time) # Set timer with value and start
+
+        def send_timer_set_step_length(self, timer_id=None, new_step_length=None):
+            if self.software == "DRO":
+                self.send_command("TSS", timer_id, new_step_length) # set step
+            else:
+                pass # no ao equivalent
+
+        def send_timer_set_firing_interval(self, timer_id=None, new_firing_interval=None):
+            if self.software == "DRO":
+                self.send_command("TSF", timer_id, new_firing_interval) #set firing
+            else:
+                pass # no ao equivalent
 
         def send_timer_set_time(self, timer_id=None, new_time=None, start=False):
             if self.software == "DRO":

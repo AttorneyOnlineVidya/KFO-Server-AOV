@@ -1,6 +1,4 @@
 import shlex
-import yaml
-import os
 
 import re
 
