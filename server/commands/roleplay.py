@@ -758,10 +758,6 @@ def ooc_cmd_timer(client, arg):
         else:
             timer.static = datetime.timedelta(seconds=abs(duration))
             timer.set = True
-            if timer_id == 0:
-                client.area.area_manager.send_command("TI", timer_id, 2)
-            else:
-                client.area.send_command("TI", timer_id, 2)
         if len(args) > 2:
             command_arg = args[2]
 
@@ -787,9 +783,9 @@ def ooc_cmd_timer(client, arg):
             timer.schedule.cancel()
         client.send_ooc(f"Timer {timer_id} unset and hidden.")
         if timer_id == 0:
-            client.area.area_manager.send_command("TI", timer_id, 3)
+            client.area.area_manager.send_timer_set_time(timer_id, None)
         else:
-            client.area.send_command("TI", timer_id, 3)
+            client.area.send_timer_set_time(timer_id, None)
     elif args[1][0] == "/":
         full = " ".join(args[1:])[1:]
         if full == "":
@@ -825,10 +821,9 @@ def ooc_cmd_timer(client, arg):
         s = int(not timer.started)
         static_time = int(timer.static.total_seconds()) * 1000
         if timer_id == 0:
-            client.area.area_manager.send_command(
-                "TI", timer_id, s, static_time)
+            client.area.area_manager.send_timer_set_time(timer_id, static_time, timer.started)
         else:
-            client.area.send_command("TI", timer_id, s, static_time)
+            client.area.send_timer_set_time(timer_id, static_time, timer.started)
         client.send_ooc(f"Timer {timer_id} is at {timer.static}")
 
         if timer_id == 0:
@@ -882,7 +877,7 @@ def ooc_cmd_demo(client, arg):
     for packet in packets:
         p_args = packet.split("#")
         p_args[0] = p_args[0].strip()
-        if p_args[0] in ["MS", "CT", "MC", "BN", "HP", "RT", "wait"]:
+        if p_args[0] in ["MS", "CT", "MC", "BN", "HP", "RT", "wait", "GM", "ST"]:
             client.area.demo += [p_args]
         elif p_args[0].startswith("/"):  # It's a command!
             p_args = packet.split(" ")
@@ -896,6 +891,7 @@ def ooc_cmd_demo(client, arg):
     client.area.play_demo(client)
 
 
+@mod_only(area_owners=True)
 def ooc_cmd_trigger(client, arg):
     """
     Set up a trigger for this area which, when fulfilled, will call the command.
