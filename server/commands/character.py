@@ -13,7 +13,6 @@ __all__ = [
     "ooc_cmd_pos",
     "ooc_cmd_pair",
     "ooc_cmd_triple_pair",
-    "ooc_cmd_triple_pair",
     "ooc_cmd_unpair",
     "ooc_cmd_pair_order",
     "ooc_cmd_forcepos",
