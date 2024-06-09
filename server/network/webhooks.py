@@ -152,7 +152,7 @@ class Webhooks:
             message = f"{random.choice(game_title_list)}\n"
             message += " ".join(pings)
 
-        description = f"{char} in **{area.name}** {'needs people for a case!' if msg is None else f'needs {msg}'}"
+        description = f"{char} in **{area.name}** {'needs people for a case!' if msg is None else f'needs {msg[:256]}'}"
 
         self.send_webhook(
             username=username,
