@@ -200,7 +200,7 @@ def ooc_cmd_jukebox(client, arg):
 
 def ooc_cmd_play(client, arg):
     """
-    Play a track and loop it. See /play_once for this command without looping.
+    Play a track and loop it. See /play1 for this command without looping.
     Usage: /play <name>
     """
     if len(arg) == 0:
