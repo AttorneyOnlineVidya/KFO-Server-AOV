@@ -8,10 +8,11 @@ from heapq import heappop, heappush
 
 
 from server import database
-from server.constants import TargetType, encode_ao_packet, contains_URL
+from server.constants import TargetType, encode_ao_packet, contains_URL, derelative
 from server.exceptions import ClientError, AreaError, ServerError
 
 import oyaml as yaml  # ordered yaml
+import json
 
 
 class ClientManager:
@@ -56,9 +57,11 @@ class ClientManager:
             self.mod_call_time = 0
             self.ipid = ipid
             self.version = ""
+            self.software = ""
 
             # Pairing character ID
             self.charid_pair = -1
+            self.third_charid = -1
             # Override if using the /pair command will lock "charid_pair" from being changed by MS packet
             self.charid_pair_override = False
             # Pairing order, either 0 (in front) or 1 (behind)
@@ -67,6 +70,7 @@ class ClientManager:
             self.offset_pair = 0
 
             self.last_sprite = ""
+            self.last_pre = ""
             self.flip = 0
             self.claimed_folder = ""
 
@@ -181,8 +185,19 @@ class ClientManager:
             
             # rock paper scissors choice
             self.rps_choice = ""
+            
+            # Battle system stuff
+            self.battle = None
 
-    
+            # Battle system stuff
+            self.battle = None
+
+            # Battle system stuff
+            self.battle = None
+
+            # Battle system stuff
+            self.battle = None
+
         def send_raw_message(self, msg):
             """
             Send a raw packet over TCP.
@@ -227,13 +242,76 @@ class ClientManager:
                             lst[11] = evi_num
                             args = tuple(lst)
                             break
-                    # If we have someone using the DRO 1.1.0 Client
-                    if self.version.startswith("1.1.0"):
+                    # If we have someone using the DRO Client
+                    if self.software == "DRO":
+                        anim = args[3]
+                        hide_char = 0
+                        # We are blankposting.
+                        if self.blankpost or derelative(anim) == "misc/blank":
+                            hide_char = 1
+                        # We're narrating, or we're hidden in some evidence.
+                        if anim == "" or self.narrator or self.hidden_in is not None:
+                            hide_char = 1
+
+                        # On KFO, self_offset can be set even without a pairing partner
+                        charid_pair = "-1"
+                        if len(args) > 16 and args[16]:
+                            charid_pair = str(args[16])
+                        self_offset_x = 0
+                        if len(args) > 19 and args[19]:
+                            self_offset_x = str(args[19]).replace('<and>', '&').split('&')[0]
+                        offset_pair_x = 0
+                        if len(args) > 20 and args[20]:
+                            offset_pair_x = str(args[20]).replace('<and>', '&').split('&')[0]
+
+                        # Pair data detected!
+                        if (charid_pair and charid_pair != "-1") or (self_offset_x and self_offset_x != "0"):
+                            pair_jsn_packet = {}
+                            pair_jsn_packet['packet'] = 'pair_data'
+                            pair_jsn_packet['data'] = {}
+                            other_emote = ""
+                            other_folder = ""
+                            other_flip = False
+                            if len(args) > 17:
+                                other_folder = args[17]
+                            if len(args) > 18:
+                                other_emote = args[18]
+                            if len(args) > 21:
+                                other_flip = bool(int(args[21]))
+                            pair_jsn_packet['data']['character'] = other_folder
+                            pair_jsn_packet['data']['last_sprite'] = other_emote
+                            pair_jsn_packet['data']['flipped'] = other_flip
+                            
+                            # no y offset is supported and on DRO Client, the pairing offsets are measured in pixels rather than percentage
+                            if self_offset_x:
+                                self_offset_x = int((float(self_offset_x) / 100) * 960 + 480) # offset_pair
+                            if offset_pair_x:
+                                offset_pair_x = int((float(offset_pair_x) / 100) * 960 + 480) # other_offset
+                            pair_jsn_packet['data']['self_offset'] = self_offset_x
+                            pair_jsn_packet['data']['offset_pair'] = offset_pair_x
+                            
+                            # Send the result!
+                            json_data = json.dumps(pair_jsn_packet)
+                            self.send_command('JSN', json_data)
+                        # No pair :(
+                        else:
+                            pair_jsn_packet = {}
+                            pair_jsn_packet['packet'] = 'pair'
+                            pair_jsn_packet['data'] = {}
+                            pair_jsn_packet['data']['pair_left'] = -1
+                            pair_jsn_packet['data']['pair_right'] = -1
+                            pair_jsn_packet['data']['offset_left'] = 0
+                            pair_jsn_packet['data']['offset_right'] = 0
+                            json_data = json.dumps(pair_jsn_packet)
+                            self.send_command('JSN', json_data)
+
+                        # Now, modify the packet
                         lst = list(args)
                         lst[16] = ""  # No video support :(
-                        lst[17] = 0  # no hiding character
-                        lst[18] = self.id  # sender character id
+                        lst[17] = hide_char # hide character if we're blankposting or narrating
+                        lst[18] = -1  # would be target id, but we dunno who
                         args = tuple(lst)
+                        # Packet modified!
             command, *args = encode_ao_packet([command] + list(args))
             message = f"{command}#"
             for arg in args:
@@ -282,6 +360,130 @@ class ClientManager:
             players = self.server.player_count
             limit = self.server.config["playerlimit"]
             self.send_ooc(f"{players}/{limit} players online.")
+
+        def send_timer_set_time(self, timer_id=None, new_time=None, start=False):
+            if self.software == "DRO":
+                # configuration. There's no situation where these values are different on KFO-Server
+                self.send_timer_set_step_length(timer_id, -16) # 16 milliseconds, matches AO
+                self.send_timer_set_firing_interval(timer_id, 16) # 16 milliseconds, matches AO
+                
+                self.send_command("TST", timer_id, new_time) # set time
+                if start:
+                    self.send_command("TR", timer_id) # resume
+                else:
+                    self.send_command("TP", timer_id) # pause
+            else:
+                if new_time == None:
+                    self.send_command("TI", timer_id, 1, 0) # Stop timer
+                    self.send_command("TI", timer_id, 3, 0) # Hide timer
+                else:
+                    self.send_command("TI", timer_id, 2, new_time) # Show timer
+                    self.send_command("TI", timer_id, int(not start), new_time) # Set timer with value and start
+
+        def send_timer_set_step_length(self, timer_id=None, new_step_length=None):
+            if self.software == "DRO":
+                self.send_command("TSS", timer_id, new_step_length) # set step
+            else:
+                pass # no ao equivalent
+
+        def send_timer_set_firing_interval(self, timer_id=None, new_firing_interval=None):
+            if self.software == "DRO":
+                self.send_command("TSF", timer_id, new_firing_interval) #set firing
+            else:
+                pass # no ao equivalent
+
+        def send_timer_set_time(self, timer_id=None, new_time=None, start=False):
+            if self.software == "DRO":
+                # configuration. There's no situation where these values are different on KFO-Server
+                self.send_timer_set_step_length(timer_id, -16) # 16 milliseconds, matches AO
+                self.send_timer_set_firing_interval(timer_id, 16) # 16 milliseconds, matches AO
+                
+                self.send_command("TST", timer_id, new_time) # set time
+                if start:
+                    self.send_command("TR", timer_id) # resume
+                else:
+                    self.send_command("TP", timer_id) # pause
+            else:
+                if new_time == None:
+                    self.send_command("TI", timer_id, 1, 0) # Stop timer
+                    self.send_command("TI", timer_id, 3, 0) # Hide timer
+                else:
+                    self.send_command("TI", timer_id, 2, new_time) # Show timer
+                    self.send_command("TI", timer_id, int(not start), new_time) # Set timer with value and start
+
+        def send_timer_set_step_length(self, timer_id=None, new_step_length=None):
+            if self.software == "DRO":
+                self.send_command("TSS", timer_id, new_step_length) # set step
+            else:
+                pass # no ao equivalent
+
+        def send_timer_set_firing_interval(self, timer_id=None, new_firing_interval=None):
+            if self.software == "DRO":
+                self.send_command("TSF", timer_id, new_firing_interval) #set firing
+            else:
+                pass # no ao equivalent
+
+        def send_timer_set_time(self, timer_id=None, new_time=None, start=False):
+            if self.software == "DRO":
+                # configuration. There's no situation where these values are different on KFO-Server
+                self.send_timer_set_step_length(timer_id, -16) # 16 milliseconds, matches AO
+                self.send_timer_set_firing_interval(timer_id, 16) # 16 milliseconds, matches AO
+                
+                self.send_command("TST", timer_id, new_time) # set time
+                if start:
+                    self.send_command("TR", timer_id) # resume
+                else:
+                    self.send_command("TP", timer_id) # pause
+            else:
+                if new_time == None:
+                    self.send_command("TI", timer_id, 1, 0) # Stop timer
+                    self.send_command("TI", timer_id, 3, 0) # Hide timer
+                else:
+                    self.send_command("TI", timer_id, 2, new_time) # Show timer
+                    self.send_command("TI", timer_id, int(not start), new_time) # Set timer with value and start
+
+        def send_timer_set_step_length(self, timer_id=None, new_step_length=None):
+            if self.software == "DRO":
+                self.send_command("TSS", timer_id, new_step_length) # set step
+            else:
+                pass # no ao equivalent
+
+        def send_timer_set_firing_interval(self, timer_id=None, new_firing_interval=None):
+            if self.software == "DRO":
+                self.send_command("TSF", timer_id, new_firing_interval) #set firing
+            else:
+                pass # no ao equivalent
+
+        def send_timer_set_time(self, timer_id=None, new_time=None, start=False):
+            if self.software == "DRO":
+                # configuration. There's no situation where these values are different on KFO-Server
+                self.send_timer_set_step_length(timer_id, -16) # 16 milliseconds, matches AO
+                self.send_timer_set_firing_interval(timer_id, 16) # 16 milliseconds, matches AO
+                
+                self.send_command("TST", timer_id, new_time) # set time
+                if start:
+                    self.send_command("TR", timer_id) # resume
+                else:
+                    self.send_command("TP", timer_id) # pause
+            else:
+                if new_time == None:
+                    self.send_command("TI", timer_id, 1, 0) # Stop timer
+                    self.send_command("TI", timer_id, 3, 0) # Hide timer
+                else:
+                    self.send_command("TI", timer_id, 2, new_time) # Show timer
+                    self.send_command("TI", timer_id, int(not start), new_time) # Set timer with value and start
+
+        def send_timer_set_step_length(self, timer_id=None, new_step_length=None):
+            if self.software == "DRO":
+                self.send_command("TSS", timer_id, new_step_length) # set step
+            else:
+                pass # no ao equivalent
+
+        def send_timer_set_firing_interval(self, timer_id=None, new_firing_interval=None):
+            if self.software == "DRO":
+                self.send_command("TSF", timer_id, new_firing_interval) #set firing
+            else:
+                pass # no ao equivalent
 
         def is_valid_name(self, name):
             """
@@ -367,7 +569,7 @@ class ClientManager:
             Check if the client can change music or not.
             :returns: how many seconds the client must wait to change music
             """
-            if self.is_mod or self in self.area.owners:
+            if self.is_mod:
                 return 0
 
             # Get a list of unique IPIDs from the current area to determine if the "player" is truly alone in an area (spectators or hidden players don't count).
@@ -721,12 +923,12 @@ class ClientManager:
 
             return song_list
 
-        def refresh_music(self):
+        def refresh_music(self, reload=False):
             """
             Rebuild the client's music list, updating the local music list if there was a change.
             """
             song_list = self.construct_music_list()
-            if self.local_music_list != song_list:
+            if self.local_music_list != song_list or reload:
                 self.reload_music_list(song_list)
 
         def reload_music_list(self, music=[]):
@@ -1027,7 +1229,7 @@ class ClientManager:
                 self.is_mod or self in area.owners or self.char_id == -1
             ) and not area.is_char_available(self.char_id):
                 self.check_char_taken(area)
-
+                
             old_area = self.area
             self.set_area(area, target_pos)
             self.last_move_time = round(time.time() * 1000.0)
@@ -1415,9 +1617,9 @@ class ClientManager:
             ):
                 if self.blinded:
                     raise ClientError("You are blinded!")
-                if not self.server.config["can_gethubs"]:
+                if "can_gethubs" not in self.server.config or not self.server.config["can_gethubs"]:
                     raise ClientError(
-                        "In this server it is not allowed to use the command /gethubs!"
+                        "You are not permitted to use the /gethubs command in this server!"
                     )
             cnt = 0
             info = "\n🗺️ Clients in Hubs 🗺️\n"
@@ -2134,7 +2336,7 @@ class ClientManager:
             client.send_ooc("You are now AFK. Have a good day!")
             client.area.afkers.append(client)
 
-    def refresh_music(self, clients=None):
+    def refresh_music(self, clients=None, reload=False):
         """
         Refresh the listed clients' music lists.
         :param clients: list of clients whose music lists should be regenerated.
@@ -2143,10 +2345,37 @@ class ClientManager:
         if clients is None:
             clients = self.clients
         for client in clients:
-            client.refresh_music()
+            client.refresh_music(reload)
 
     def get_multiclients(self, ipid=-1, hdid=""):
         return [c for c in self.clients if c.ipid == ipid or c.hdid == hdid]
 
     def get_mods(self):
         return [c for c in self.clients if c.is_mod]
+        
+    class BattleChar:
+        def __init__(self, client, fighter_name, fighter):
+            self.fighter = fighter_name
+            self.hp = float(fighter["HP"])
+            self.maxhp = self.hp
+            self.atk = float(fighter["ATK"])
+            self.mana = float(fighter["MANA"])
+            self.defe = float(fighter["DEF"])
+            self.spa = float(fighter["SPA"])
+            self.spd = float(fighter["SPD"])
+            self.spe = float(fighter["SPE"])
+            self.target = None
+            self.selected_move = -1
+            self.status = None
+            self.current_client = client
+            self.guild = None
+            self.moves = [ClientManager.Move(move) for move in fighter["Moves"]]
+
+    class Move:
+        def __init__(self, move):
+            self.name = move["Name"]
+            self.cost = move["ManaCost"]
+            self.type = move["MovesType"]
+            self.power = float(move["Power"])
+            self.effect = move["Effects"]
+            self.accuracy = float(move["Accuracy"])

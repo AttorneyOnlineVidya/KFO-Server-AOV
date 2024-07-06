@@ -676,19 +676,13 @@ def ooc_cmd_rps_rules(client, arg):
 
 def ooc_cmd_timer(client, arg):
     """
-    Manage a countdown timer in the current area. Note that timer of ID `0` is hub-wide. All other timer ID's are local to area.
-    Anyone can check ongoing timers, their status and time left using `/timer <id>`, so `/timer 0`.
-    `[time]` can be formated as `10m5s`, or `"10 minutes 5 seconds"` (quotes included) - full list of time formats: https://pypi.org/project/pytimeparse/
-    You can optionally add or subtract time, like so: `/timer 0 +5s` to add `5` seconds to timer id `0`.
-    `start` starts the previously set timer, so `/timer 0 start`.
-    `pause` OR `stop` pauses the timer that's currently running, so `/timer 0 pause`.
-    `unset` OR `hide` hides the timer for it to no longer show up, so `/timer 0 hide`.
-    Commands can also be passed - /cmd is a command that you want to run when the timer expires. That command will be added to the stack of commands to run.
-    For example, `/timer 0 /timer 0 hide` will hide the timer when it expires. Adding `/timer 0 /h hello there` will also say "hello there" in hub chat as your client.
-    If you want to clear all commands, use `/timer <id> /clear`
+    Start a timer. ID `0` is server-wide, other ID's are local to area.
+    Format as 10m5s, or "10 minutes 5 seconds" (with quotations).
+    Add or subtract time with `/timer <id> +5s`.
     Usage:
     /timer <id> [+][time] [start|pause/stop|unset/hide]
-    /timer <id> /cmd
+    /timer <id> /cmd - Use a command when timer expires
+    /timer <id> /clear - Clear timer commands
     """
 
     args = shlex.split(arg)
@@ -738,14 +732,13 @@ def ooc_cmd_timer(client, arg):
 
     if not (client in client.area.owners) and not client.is_mod:
         raise ArgumentError(
-            "Only CMs or GMs can modify timers. Usage: /timer <id>")
+            "Only CMs can modify timers.")
     if (
         timer_id == 0
-        and not (client in client.area.area_manager.owners)
         and not client.is_mod
     ):
         raise ArgumentError(
-            "Only GMs can set hub-wide timer ID 0. Usage: /timer <id>")
+            "Only Mods can set server-wide timer ID 0.")
 
     command_arg = args[1]
 
@@ -765,10 +758,6 @@ def ooc_cmd_timer(client, arg):
         else:
             timer.static = datetime.timedelta(seconds=abs(duration))
             timer.set = True
-            if timer_id == 0:
-                client.area.area_manager.send_command("TI", timer_id, 2)
-            else:
-                client.area.send_command("TI", timer_id, 2)
         if len(args) > 2:
             command_arg = args[2]
 
@@ -794,9 +783,9 @@ def ooc_cmd_timer(client, arg):
             timer.schedule.cancel()
         client.send_ooc(f"Timer {timer_id} unset and hidden.")
         if timer_id == 0:
-            client.area.area_manager.send_command("TI", timer_id, 3)
+            client.area.area_manager.send_timer_set_time(timer_id, None)
         else:
-            client.area.send_command("TI", timer_id, 3)
+            client.area.send_timer_set_time(timer_id, None)
     elif args[1][0] == "/":
         full = " ".join(args[1:])[1:]
         if full == "":
@@ -832,10 +821,9 @@ def ooc_cmd_timer(client, arg):
         s = int(not timer.started)
         static_time = int(timer.static.total_seconds()) * 1000
         if timer_id == 0:
-            client.area.area_manager.send_command(
-                "TI", timer_id, s, static_time)
+            client.area.area_manager.send_timer_set_time(timer_id, static_time, timer.started)
         else:
-            client.area.send_command("TI", timer_id, s, static_time)
+            client.area.send_timer_set_time(timer_id, static_time, timer.started)
         client.send_ooc(f"Timer {timer_id} is at {timer.static}")
 
         if timer_id == 0:
@@ -889,7 +877,7 @@ def ooc_cmd_demo(client, arg):
     for packet in packets:
         p_args = packet.split("#")
         p_args[0] = p_args[0].strip()
-        if p_args[0] in ["MS", "CT", "MC", "BN", "HP", "RT", "wait"]:
+        if p_args[0] in ["MS", "CT", "MC", "BN", "HP", "RT", "wait", "GM", "ST"]:
             client.area.demo += [p_args]
         elif p_args[0].startswith("/"):  # It's a command!
             p_args = packet.split(" ")
@@ -903,6 +891,7 @@ def ooc_cmd_demo(client, arg):
     client.area.play_demo(client)
 
 
+@mod_only(area_owners=True)
 def ooc_cmd_trigger(client, arg):
     """
     Set up a trigger for this area which, when fulfilled, will call the command.
