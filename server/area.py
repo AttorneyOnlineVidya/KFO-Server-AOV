@@ -955,7 +955,9 @@ class Area:
                 frames_realization="",
                 frames_sfx="",
                 additive=0,
-                effect="", 
+                effect="",
+                blipname="",
+                slide=0,
                 targets=None,
                 third_charid=-1,
                 third_folder="",
@@ -1189,6 +1191,8 @@ class Area:
                            frames_sfx,
                            additive,
                            effect,
+                           blipname,
+                           slide,
                            third_charid,
                            third_folder,
                            third_emote,
@@ -1243,6 +1247,8 @@ class Area:
             frames_sfx,  # 27
             additive,  # 28
             effect,  # 29
+            blipname,
+            slide,
             third_charid, # 30
             third_folder, # 31
             third_emote, # 32
@@ -1302,6 +1308,8 @@ class Area:
                 frames_sfx,  # 27
                 additive,  # 28
                 effect,  # 29
+                blipname,
+                slide,
                 third_charid, # 30
                 third_folder, # 31
                 third_emote, # 32
