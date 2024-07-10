@@ -599,7 +599,7 @@ class AOProtocol(asyncio.Protocol):
             self.ArgType.STR, # 26 # blipname
             self.ArgType.INT, # 27 # slide
         ):
-            # 2.10 validation monstrosity. (FUCK IT WE BALL FUCK IT WE BALL FUCK IT WE BALL)
+            # 2.11 validation monstrosity. (FUCK IT WE BALL FUCK IT WE BALL FUCK IT WE BALL)
             (
                 msg_type,
                 pre,
