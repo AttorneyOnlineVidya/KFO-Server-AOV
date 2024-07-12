@@ -205,19 +205,31 @@ def ooc_cmd_play(client, arg):
     """
     if len(arg) == 0:
         raise ArgumentError("You must specify a song.")
-    client.change_music(arg, client.char_id, "", 2,
-                        True)  # looped change music
+    if client not in client.area.owners:
+        client.area._owners.add(client) #I cannot be arsed editing the change music code, so fuck it, temp CM
+        client.change_music(arg, client.char_id, "", 2,
+                            True)
+        client.area._owners.remove(client)
+    else:
+        client.change_music(arg, client.char_id, "", 2,
+                            True)  # looped change music
 
 
 def ooc_cmd_play1(client, arg):
     """
     Play a track without looping it. See /play for this command with looping.
-    Usage: /play_once <name>
+    Usage: /play1 <name>
     """
     if len(arg) == 0:
         raise ArgumentError("You must specify a song.")
-    client.change_music(arg, client.char_id, "", 2,
-                        False)  # non-looped change music
+    if client not in client.area.owners:
+        client.area._owners.add(client)
+        client.change_music(arg, client.char_id, "", 2,
+                            False)
+        client.area._owners.remove(client)
+    else:
+        client.change_music(arg, client.char_id, "", 2,
+                            False)  # non-looped change music
 
 
 @mod_only()
