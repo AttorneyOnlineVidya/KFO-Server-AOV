@@ -661,9 +661,6 @@ class AOProtocol(asyncio.Protocol):
             len(showname) > 0
             and not self.client.area.showname_changes_allowed
         ):
-            self.client.send_ooc(
-                "Showname changes are forbidden in this area!")
-            #return
             showname = self.client.char_name
         if self.client.area.is_iniswap(self.client, pre, anim, folder, sfx):
             folder = self.client.char_name
