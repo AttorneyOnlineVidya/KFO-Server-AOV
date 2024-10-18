@@ -42,9 +42,9 @@ If you encounter any issues or bugs, please contact AOV staff via server Mod Cal
 	- "Cutscenes", officially called 'Demos', can be created and played using demo files and evidence.
 	- The easiest way to do this is to turn 'Log To Demo Files' on in your client's Settings > Logging options.
 	- Then, on server, play out your cutscene using your preferred characters, effects and general actions. A date and time-stamped demo file is created in your client's "logs" folder in a folder named after the server once you connect:<br>
-	![Demo File Location](https://cdn.discordapp.com/attachments/657301457086840837/1096399796786434068/demoFileLocation.png)
+	![Demo File Location](https://github.com/AttorneyOnlineVidya/AttorneyOnlineVidya.github.io/blob/main/img/ext/demoFileLocation.png?raw=true)
 	- Open the demo file in a text editor such as Notepad++. From here you can scroll down to see the individual lines relating to each action you performed. It will look like this:<br>
-	![A Demo File open in Notepad++](https://cdn.discordapp.com/attachments/657301457086840837/1096402000763170886/demoFile.png)
+	![A Demo File open in Notepad++](https://github.com/AttorneyOnlineVidya/AttorneyOnlineVidya.github.io/blob/main/img/ext/demoFile.png?raw=true)
 	- These lines basically consist of client commands involving talking IC, animations, backgrounds and effects. 
 		- You can edit and manipulate these as needed. For example, you can delete the unnecessary initial top-line character list, modify any wait times, change backgrounds with "BN#" and edit "MS#" (IC Chat) lines to include or change SFX or visual effects. 
 	- Once edited down to your preference, copy and paste these lines into the Description of a piece of evidence. Note the following:
@@ -52,7 +52,7 @@ If you encounter any issues or bugs, please contact AOV staff via server Mod Cal
 		- You must use `%` to end a line. 
 		- Evidence desciptions have a character limit. As such, you can chain to another demo evidence by putting `/demo [next evidence id]` as the last line to continue the full demo.
 	- Here is an example of what this should look like:<br> 
-	![Demo Evidence Text Example](https://cdn.discordapp.com/attachments/657301457086840837/1096387674887163964/demoFileExample.png)
+	![Demo Evidence Text Example](https://github.com/AttorneyOnlineVidya/AttorneyOnlineVidya.github.io/blob/main/img/ext/demoFileExample.png?raw=true)
 	- When finished, use `/demo [evidence name or ID]` to play the cutscene. Use `/demo` by itself to stop it.
 ## Case Advert Webhook
 * **need** `message`
