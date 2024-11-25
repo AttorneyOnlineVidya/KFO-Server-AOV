@@ -616,6 +616,9 @@ class ClientManager:
                 return
             if cid != self.char_id:
                 return
+            if not self.hdid.startswith("S-"):
+                self.send_ooc("WebAO clients are blocked from using music. Get the client at https://aovidya.pw/AOV")
+                return
 
             # Decode AO packet
             song = song.replace("<num>", "#") \
@@ -729,17 +732,11 @@ class ClientManager:
                             self.editing_minigame_song_condition = 0
 
                     # Showname info
-                    if showname != "":
-                        if (
-                            len(showname) > 0
-                            and not area.showname_changes_allowed
-                            and not self.is_mod
-                            and self not in area.owners
-                        ):
-                            self.send_ooc(
-                                f"Showname changes are forbidden in area [{area.id}] {area.name}!"
-                            )
-                            continue
+                    if (
+                        len(showname) > 0
+                        and not area.showname_changes_allowed
+                    ):
+                        showname = self.char_name
 
                     # Effects info
                     effects = int(effects)
