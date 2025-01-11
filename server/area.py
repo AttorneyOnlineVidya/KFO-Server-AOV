@@ -233,7 +233,7 @@ class Area:
         self.recording = False
         self.last_ic_message = None
         self.cards = dict()
-        self.votes = dict()
+        self.ballots = dict()
         self.password = ""
         self.shadow_status = {}
 

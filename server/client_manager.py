@@ -56,6 +56,8 @@ class ClientManager:
             self.pm_mute = False
             self.mod_call_time = 0
             self.ipid = ipid
+            self.voting = 0
+            self.voting_at = 0
             self.version = ""
             self.software = ""
 

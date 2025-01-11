@@ -1527,6 +1527,71 @@ class AOProtocol(asyncio.Protocol):
             return
         database.log_area("chat.ooc", self.client,
                           self.client.area, message=args[1])
+        
+        if self.client.voting == 2:
+            polls = self.client.server.serverpoll_manager.show_poll_list()
+            choices = self.client.server.serverpoll_manager.get_poll_choices(polls[self.client.voting_at])
+            multi = self.client.server.serverpoll_manager.returnmulti(polls[self.client.voting_at])
+            if multi:
+                if args[1].lower() in [x.lower() for x in choices]:
+                    self.client.server.serverpoll_manager.add_vote(polls[self.client.voting_at], args[1].lower(),
+                                                                   self.client)
+                    self.client.send_ooc(
+                        'Voted {}. Choose another item to vote or type \'exit\' to stop voting.'.format(args[1]))
+                elif args[1].lower() == "exit":
+                    self.client.send_ooc('=== Leaving Voting Mode... ===')
+                    self.client.voting_at = 0
+                    self.client.voting = 0
+                else:
+                    self.client.send_ooc(
+                        'Input Error, expected input is one of the choices, type "exit" to exit voting.')
+            else:
+                if args[1].lower() in [x.lower() for x in choices]:
+                    self.client.server.serverpoll_manager.add_vote(polls[self.client.voting_at], args[1].lower(),
+                                                                   self.client)
+                elif args[1].lower() == "exit":
+                    self.client.send_ooc('=== Leaving Voting Mode... ===')
+                    self.client.voting_at = 0
+                    self.client.voting = 0
+                else:
+                    self.client.send_ooc(
+                        'Input Error, expected input is one of the choices, voting cancelled.')
+                    self.client.send_ooc('=== Leaving Voting Mode... ===')
+                self.client.voting_at = 0
+                self.client.voting = 0
+            return
+        if self.client.voting == 1:
+            num = -1
+            try:
+                num = int(args[1])
+            except:
+                self.client.send_ooc(
+                    'Input Error, expected integer. \n Choose which poll to vote, enter 0 to cancel.')
+                return
+            if num in range(1, self.client.server.serverpoll_manager.poll_number() + 1):
+                self.client.voting += 1
+                self.client.voting_at = num - 1
+                polls = self.client.server.serverpoll_manager.show_poll_list()
+                polldetail = self.client.server.serverpoll_manager.returndetail(polls[self.client.voting_at])
+                choices = self.client.server.serverpoll_manager.get_poll_choices(polls[self.client.voting_at])
+                self.client.send_ooc("===========")
+                if polldetail is None:
+                    self.client.send_ooc(
+                        'Now voting for {}.) {}.\n Choices: \n◽ {}\nType \'exit\' to cancel voting.'.format(num, polls[
+                            self.client.voting_at], "\n ◽ ".join(choices)))
+                else:
+                    self.client.send_ooc(
+                        'Now voting for {}.) {}.\n Details: {}.\n Choices: \n◽ {}\nType \'exit\' to cancel voting'.format(
+                            num, polls[self.client.voting_at], polldetail, "\n ◽ ".join(choices)))
+            elif num == 0:
+                self.client.voting = 0
+                self.client.send_ooc('Voting cancelled.')
+                self.client.send_ooc('=== Leaving Voting Mode... ===')
+            else:
+                self.client.send_ooc(
+                    'Input Error, out of range/invalid poll number.\n Choose which poll to vote, enter 0 to cancel. ')
+            return
+
         if args[1].startswith("/"):
             spl = args[1][1:].split(" ", 1)
             cmd = spl[0].lower()

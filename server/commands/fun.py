@@ -16,6 +16,14 @@ __all__ = [
     "ooc_cmd_emoji",
     "ooc_cmd_aussie",
     "ooc_cmd_tag",
+    "ooc_cmd_vote",
+    "ooc_cmd_polls",
+    "ooc_cmd_polladd",
+    "ooc_cmd_pollremove",
+    "ooc_cmd_polldetail",
+    "ooc_cmd_pollchoiceclear",
+    "ooc_cmd_pollchoiceremove",
+    "ooc_cmd_pollchoiceadd",
 ]
 
 
@@ -326,3 +334,203 @@ def ooc_cmd_tag(client, arg):
                 client.tag = False
     else:
         client.send_ooc('No targets found.')
+
+# Voting system port
+def ooc_cmd_vote(client, arg):
+    """
+    Enter voting mode and vote on a current server poll.
+    Usage: /vote
+    """
+    if not client.hdid.startswith("S-"):
+        client.send_ooc("WebAO users are blocked from voting on server polls. Download the client at https://aovidya.pw/AOV")
+        return
+    if len(arg) == 0:
+        polls = client.server.serverpoll_manager.show_poll_list()
+        if not polls:
+            client.send_ooc('There are currently no polls to vote for.')
+        else:
+            client.send_ooc('=== Entering Voting Mode... ===')
+            message = 'Current polls:'
+            for x, poll in enumerate(polls):
+                message += '\n{}. {}'.format(x + 1, poll)
+            message += '\nEnter the number of the poll in which you would like to vote in. Enter 0 to cancel.'
+            client.send_ooc(message)
+            client.voting += 1
+    else:
+        client.send_ooc('This command doesn\'t take arguments')
+
+
+def ooc_cmd_polls(client, arg):
+    """
+    See the current list of server polls.
+    Usage: /polls
+    """
+    if len(arg) > 0:
+        client.send_ooc('This command doesn\'t take arguments')
+    else:
+        polls = client.server.serverpoll_manager.show_poll_list()
+        if not polls:
+            client.send_ooc('There are currently no polls.')
+        else:
+            message = 'Current server polls:'
+            for x, poll in enumerate(polls):
+                message += '\n{}. {}'.format(x + 1, poll)
+            client.send_ooc(message)
+
+@mod_only()
+def ooc_cmd_polladd(client, arg):
+    """
+    Add a new server poll. Choice defaults are Yes and No.
+    Usage: /polladd <Poll Name>
+    """
+    if client.is_mod:
+        if len(arg) <= 1:
+            raise ArgumentError("Invalid Argument: Your poll question is too short. Please enter at least more than one character.")
+        sarg = arg.replace(" ", "")
+        if not sarg.isalnum():
+            raise ArgumentError("Invalid Argument: Please do not use special characters (e.g. !#%&?) in your poll question.")
+        else:
+            client.server.serverpoll_manager.add_poll(arg)
+            client.send_ooc('Added {} as a poll.'.format(arg))
+            database.log_misc('poll added', client, target=None, data=arg)
+    else:
+        return
+
+@mod_only()
+def ooc_cmd_pollremove(client, arg):
+    """
+    Remove a server poll.
+    Usage: /pollremove <Poll Name>
+    """
+    if client.is_mod:
+        client.server.serverpoll_manager.remove_poll(arg)
+        client.send_ooc('Removed {} as a poll.'.format(arg))
+        database.log_misc('poll removed', client, target=None, data=arg)
+    else:
+        return
+
+@mod_only()
+def ooc_cmd_polldetail(client, arg):
+    """
+    Add further details and information to a current server poll.
+    Usage: /polldetail <Poll Name>: <Details>
+    """
+    if client.is_mod:
+        if len(arg) == 0:
+            client.send_ooc('Command must have an argument!')
+        else:
+            args = arg.split()
+            poll = 1
+            for word in args:
+                if word.lower().endswith(':'):
+                    break
+                else:
+                    poll += 1
+            if poll == len(args):
+                raise ArgumentError(
+                    'Invalid syntax. Add \':\' in the end of pollname. \n \'/addpolldetail <poll name>: <detail>\'')
+            poll_name = ' '.join(args[:poll])
+            poll_name = poll_name[:len(poll_name) - 1]
+            detail = ' '.join(args[poll:])
+            if not detail:
+                raise ArgumentError(
+                    'Invalid syntax. Expected message after \':\'. \n \'/addpolldetail <poll name>: <detail>\'')
+            x = client.server.serverpoll_manager.polldetail(poll_name, detail)
+            if x == 1:
+                client.send_ooc('Added "{}" as details in poll "{}"'.format(detail, poll_name))
+                database.log_misc('poll detail', client, target=None, data=arg)
+            else:
+                client.send_ooc('Poll does not exist!')
+    else:
+        return
+
+@mod_only()
+def ooc_cmd_pollchoiceclear(client, arg):
+    """
+    Clear all choices from a server poll.
+    Usage: /pollchoiceclear <Poll Name>
+    """
+    if client.is_mod:
+        client.server.serverpoll_manager.clear_poll_choice(arg)
+        client.send_ooc('Poll {} choices cleared.'.format(arg))
+        database.log_misc('poll choice clear', client, target=None, data=arg)
+    else:
+        return
+
+@mod_only()
+def ooc_cmd_pollchoiceremove(client, arg):
+    """
+    Clear a specific choice from a server poll.
+    Usage: /pollchoiceremove <Poll Name>: <Choice>
+    """
+    if client.is_mod:
+        args = arg.split()
+        ooc_name = 1
+        for word in args:
+            if word.lower().endswith(':'):
+                break
+            else:
+                ooc_name += 1
+        if ooc_name == len(args) + 1:
+            raise ArgumentError('Invalid syntax. Add \':\' in the end of target.')
+        poll = ' '.join(args[:ooc_name])
+        poll = poll[:len(poll) - 1]
+        choice = ' '.join(args[ooc_name:])
+        if not choice:
+            raise ArgumentError('Not enough arguments. Use /pollchoiceremove <poll>: <choice to be removed>.')
+        x = client.server.serverpoll_manager.remove_poll_choice(client, poll, choice)
+        if x is None:
+            return
+        client.send_ooc(
+            'Removed {} as a choice in poll {}. Current choices:\n{} '.format(choice, poll, "\n".join(x)))
+        database.log_misc('poll choice removed', client, target=None, data=poll + choice)
+    else:
+        return
+
+@mod_only()
+def ooc_cmd_pollchoiceadd(client, arg):
+    """
+    Add a choice to a server poll.
+    Usage: /pollchoiceadd <Poll Name>: <Choice>
+    """
+    if client.is_mod:
+        args = arg.split()
+        ooc_name = 1
+        for word in args:
+            if word.lower().endswith(':'):
+                break
+            else:
+                ooc_name += 1
+        if ooc_name == len(args) + 1:
+            raise ArgumentError('Invalid syntax. Add \':\' in the end of target.')
+        poll = ' '.join(args[:ooc_name])
+        poll = poll[:len(poll) - 1]
+        choice = ' '.join(args[ooc_name:])
+        if not choice:
+            raise ArgumentError('Not enough arguments. Use /pollchoiceremove <poll>: <choice to be removed>.')
+        x = client.server.serverpoll_manager.add_poll_choice(client, poll, choice)
+        if x is None:
+            return
+        client.send_ooc(
+            'Added {} as a choice in poll {}. Current choices:\n{} '.format(choice, poll, "\n".join(x)))
+        database.log_misc('poll choice add', client, target=None, data=poll + choice)
+    else:
+        return
+
+# this shit sucks, don't use it
+@mod_only()
+def ooc_cmd_makepollmulti(client, arg):
+    """
+    Allow multiple choice selections for a server poll, or return to a single choice vote.
+    Usage: /makepollmulti <Poll Name>
+    """
+    if client.is_mod:
+        x = client.server.serverpoll_manager.make_multipoll(arg)
+        if x:
+            client.send_ooc('Poll {} made multipoll.'.format(arg))
+            database.log_misc('poll multi vote', client, target=None, data=arg)
+        else:
+            client.send_ooc('Poll {} made single poll.'.format(arg))
+            database.log_misc('poll single vote', client, target=None, data=arg)
+    else:
+        return

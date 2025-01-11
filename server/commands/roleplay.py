@@ -21,10 +21,10 @@ __all__ = [
     "ooc_cmd_notecard_clear",
     "ooc_cmd_notecard_reveal",
     "ooc_cmd_notecard_check",
-    "ooc_cmd_vote",
-    "ooc_cmd_vote_clear",
-    "ooc_cmd_vote_reveal",
-    "ooc_cmd_vote_check",
+    "ooc_cmd_ballot",
+    "ooc_cmd_ballot_clear",
+    "ooc_cmd_ballot_reveal",
+    "ooc_cmd_ballot_check",
     "ooc_cmd_rolla_reload",
     "ooc_cmd_rolla_set",
     "ooc_cmd_rolla",
@@ -285,116 +285,116 @@ def ooc_cmd_notecard_check(client, arg):
     database.log_area("notecard_check", client, client.area)
 
 
-def ooc_cmd_vote(client, arg):
+def ooc_cmd_ballot(client, arg):
     """
-    Cast a vote for a particular user that can only be revealed by a CM.
-    Usage: /vote <id>
+    Cast a ballot for a particular user that can only be revealed by a CM.
+    Usage: /ballot <id>
     """
     args = arg.split()
     if len(args) == 0:
-        raise ArgumentError("Please provide a client ID. Usage: /vote <id>.")
-    if client.char_name in [y for x in client.area.votes.values() for y in x]:
+        raise ArgumentError("Please provide a client ID. Usage: /ballot <id>.")
+    if client.char_name in [y for x in client.area.ballots.values() for y in x]:
         raise ArgumentError(
-            "You already cast your vote! Wait on the CM to /vote_clear."
+            "You already cast your ballot vote! Wait on the CM to /ballot_clear."
         )
     try:
         target = client.server.client_manager.get_targets(
             client, TargetType.ID, int(args[0]), False
         )[0]
     except:
-        raise ArgumentError("Please provide a client ID. Usage: /vote <id>")
-    client.area.votes.setdefault(target.char_name, []).append(client.char_name)
-    client.area.broadcast_ooc(f"[{client.id}] {client.char_name} cast a vote.")
-    database.log_area("vote", client, client.area)
+        raise ArgumentError("Please provide a client ID. Usage: /ballot <id>")
+    client.area.ballots.setdefault(target.char_name, []).append(client.char_name)
+    client.area.broadcast_ooc(f"[{client.id}] {client.char_name} cast a ballot.")
+    database.log_area("ballot", client, client.area)
 
 
 @mod_only(area_owners=True)
-def ooc_cmd_vote_clear(client, arg):
+def ooc_cmd_ballot_clear(client, arg):
     """
-    Clear all votes as a CM.
-    Include [char_folder] (case-sensitive) to only clear a specific voter.
-    Usage: /vote_clear [char_folder]
+    Clear all ballot votes as a CM.
+    Include [char_folder] (case-sensitive) to only clear a specific ballot voter.
+    Usage: /ballot_clear [char_folder]
     """
     if arg != "":
-        for value in client.area.votes.values():
+        for value in client.area.ballots.values():
             if arg in value:
                 value.remove(arg)
                 client.area.broadcast_ooc(
-                    f"[{client.id}] {client.char_name} has cleared {arg}'s vote."
+                    f"[{client.id}] {client.char_name} has cleared {arg}'s ballot vote."
                 )
                 return
         raise ClientError(
-            f"No vote was cast by {arg}! (This is case-sensitive - are you sure you spelt the voter character folder right?)"
+            f"No ballot vote was cast by {arg}! (This is case-sensitive - are you sure you spelt the voter character folder right?)"
         )
-    client.area.votes.clear()
+    client.area.ballots.clear()
     client.area.broadcast_ooc(
-        f"[{client.id}] {client.char_name} has cleared all the votes in this area."
+        f"[{client.id}] {client.char_name} has cleared all the ballot votes in this area."
     )
-    database.log_area("vote_clear", client, client.area)
+    database.log_area("ballot_clear", client, client.area)
 
 
-def get_vote_results(votes):
-    # Sort the votes, starting from the least votes ending with the most votes. Note that x[1] is a list of voters, hence the len().
-    votes = sorted(votes.items(), key=lambda x: len(x[1]))
+def get_ballot_results(ballots):
+    # Sort the ballot votes, starting from the least votes ending with the most votes. Note that x[1] is a list of voters, hence the len().
+    ballots = sorted(ballots.items(), key=lambda x: len(x[1]))
     msg = ""
     # Iterating through the votes...
-    for key, value in votes:
+    for key, value in ballots:
         # Create a comma-separated list of people who voted for this person
-        voters = ", ".join(value)
+        bvoters = ", ".join(value)
         num = len(value)
         s = "s" if num > 1 else ""
-        msg += f"\n{num} vote{s} for {key} - voted by {voters}."
+        msg += f"\n{num} vote{s} for {key} - voted by {bvoters}."
 
     # Get the maximum amount of votes someone received
-    mx = len(votes[len(votes) - 1][1])
+    mx = len(ballots[len(ballots) - 1][1])
     # Determine a list of winners - usually it's just one winner, but there's multiple if it's a tie.
-    winners = [k for k, v in votes if len(v) == mx]
+    winners = [k for k, v in ballots if len(v) == mx]
 
     # If we have a tie...
     if len(winners) > 1:
         # Create a comma-separated list of winners
         tied = ", ".join(winners)
         # Display.
-        msg += f"\n{tied} have tied for most votes."
+        msg += f"\n{tied} have tied for most ballot votes."
     else:
         # Display the sole winner.
-        msg += f"\n{winners[0]} has most votes."
+        msg += f"\n{winners[0]} has most ballot votes."
     return msg
 
 
 @mod_only(area_owners=True)
-def ooc_cmd_vote_reveal(client, arg):
+def ooc_cmd_ballot_reveal(client, arg):
     """
-    Reveal the number of votes, the voters and those with the highest amount of votes.
-    Usage: /vote_reveal
+    Reveal the number of ballot votes, the voters and those with the highest amount of votes.
+    Usage: /ballot_reveal
     """
-    if len(client.area.votes) == 0:
-        raise ClientError("There are no votes to reveal in this area.")
-    msg = "Votes have been revealed:"
-    msg += get_vote_results(client.area.votes)
+    if len(client.area.ballots) == 0:
+        raise ClientError("There are no ballot votes to reveal in this area.")
+    msg = "Ballot votes have been revealed:"
+    msg += get_ballot_results(client.area.ballots)
     client.area.broadcast_ooc(msg)
-    client.send_ooc("Use /vote_clear for clearing.")
-    database.log_area("vote_reveal", client, client.area)
+    client.send_ooc("Use /ballot_clear for clearing.")
+    database.log_area("ballot_reveal", client, client.area)
 
 
 @mod_only(area_owners=True)
-def ooc_cmd_vote_check(client, arg):
+def ooc_cmd_ballot_check(client, arg):
     """
-    Check the number of votes, the voters and those with the highest amount of votes privately with a message telling others you've done so.
-    Usage: /vote_check
+    Check the number of ballot votes, the voters and those with the highest amount of votes privately with a message telling others you've done so.
+    Usage: /ballot_check
     """
-    if len(client.area.votes) == 0:
-        raise ClientError("There are no votes to check in this area.")
+    if len(client.area.ballots) == 0:
+        raise ClientError("There are no ballot votes to check in this area.")
     client.area.broadcast_ooc(
-        f"[{client.id}] {client.char_name} has checked the votes in this area."
+        f"[{client.id}] {client.char_name} has checked the ballot votes in this area."
     )
-    msg = "Votes in this area:"
-    msg += get_vote_results(client.area.votes)
+    msg = "Ballot votes in this area:"
+    msg += get_ballot_results(client.area.ballots)
     client.send_ooc(msg)
     client.send_ooc(
-        "Use /vote_clear for clearing, or /vote_reveal to reveal the results publicly."
+        "Use /ballot_clear for clearing, or /ballot_reveal to reveal the results publicly."
     )
-    database.log_area("vote_check", client, client.area)
+    database.log_area("ballot_check", client, client.area)
 
 
 @mod_only()

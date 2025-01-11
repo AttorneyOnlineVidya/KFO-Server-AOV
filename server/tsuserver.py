@@ -20,6 +20,7 @@ from server.network.aoprotocol_ws import new_websocket_client
 from server.network.masterserverclient import MasterServerClient
 from server.network.webhooks import Webhooks
 from server.constants import remove_URL, dezalgo
+from server.serverpoll_manager import ServerpollManager
 
 
 logger = logging.getLogger("main")
@@ -95,6 +96,7 @@ class TsuServer3:
             self.load_prompts()
             self.load_miscdata()
             self.hub_manager = HubManager(self)
+            self.serverpoll_manager = ServerpollManager(self)
         except yaml.YAMLError:
             print("There was a syntax error parsing a configuration file:")
             traceback.print_exc()
@@ -587,6 +589,7 @@ class TsuServer3:
          - Gimp list
          - Prompts
          - Misc Data
+         - Music Whitelist
         """
         with open("config/config.yaml", "r") as cfg:
             cfg_yaml = yaml.safe_load(cfg)
@@ -637,6 +640,7 @@ class TsuServer3:
         self.load_gimps()
         self.load_prompts()
         self.load_miscdata()
+        self.load_music_list()
 
         import server.commands
 
