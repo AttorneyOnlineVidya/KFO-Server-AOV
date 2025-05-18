@@ -100,6 +100,7 @@ class Webhooks:
         is_enabled = self.server.config["advert_webhook"]["enabled"]
         username = self.server.config["advert_webhook"]["username"]
         avatar_url = self.server.config["advert_webhook"]["avatar_url"]
+        advert_urls = self.server.config["advert_url"]
 
         if not is_enabled:
             return
@@ -111,8 +112,8 @@ class Webhooks:
         ping_list = self.server.misc_data['role_pings']
 
         roles = {}
-        for key in ["bench", "benches"]:
-            list = ping_list['def'], ping_list['pro']
+        for key in ["bench", "benches"]: # If /need contains these words
+            list = ping_list['def'], ping_list['pro'] # Add those discord roles to the ping list via miscdata
             roles[key] = " ".join(map(str, list))
         for key in ["def", "defense", "defence", "defender", "defs", "defenses", "defences", "defenders"]:
             roles[key] = ping_list['def']
@@ -154,16 +155,18 @@ class Webhooks:
 
         description = f"{char} in **{area.name}** {'needs people for a case!' if msg is None else f'needs {msg[:256]}'}"
 
-        self.send_webhook(
-            username=username,
-            avatar_url=avatar_url,
-            message=message,
-            embed=True,
-            title=titleF,
-            color=color,
-            description=description,
-            url=self.server.config["advert_url"]
-        )
+        for link in advert_urls:
+            self.send_webhook(
+                username=username,
+                avatar_url=avatar_url,
+                message=message,
+                embed=True,
+                title=titleF,
+                color=color,
+                description=description,
+                #url=self.server.config["advert_url"]
+                url=link
+            )
 
     def kick(self, ipid, hdid, reason="", client=None, char=None):
         is_enabled = self.server.config["kick_webhook"]["enabled"]
