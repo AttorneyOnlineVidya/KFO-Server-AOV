@@ -127,7 +127,7 @@ class Webhooks:
             roles[key] = ping_list['steno']
 
         all_roles = ping_list['def'], ping_list['pro'], ping_list['witdet'], ping_list['jud'], ping_list['steno']
-        all_pings = " ".join(map(str, all_roles))
+        all_pings = " ".join(map(str, filter(None, all_roles)))
 
         pings = []
         check = msg.lower()
@@ -146,12 +146,12 @@ class Webhooks:
             titleF = "❗ Case Advert ❗"
             color = self.server.config["advert_webhook"]["case_color"]
             message = f"{random.choice(case_title_list)}\n"
-            message += " ".join(pings)
         else:
             titleF = "❗ Game Advert ❗"
             color = self.server.config["advert_webhook"]["game_color"]
             message = f"{random.choice(game_title_list)}\n"
-            message += " ".join(pings)
+        
+        message += " ".join(filter(None, pings))
 
         description = f"{char} in **{area.name}** {'needs people for a case!' if msg is None else f'needs {msg[:256]}'}"
 
