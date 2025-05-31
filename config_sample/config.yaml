@@ -128,14 +128,14 @@ bridgebot:
 webhooks_enabled: true
 webhook_url: example.com
 modcall_url: example.com
-advert_url: example.com
+advert_url: ['example.com', 'example.com']
 
 # Settings for the modcall webhook. Leaving a setting blank will use its default behavior.
 modcall_webhook:
   enabled: true
   username: Modcall # the username the webhook will use
   avatar_url: # url of a custom avatar image, leave blank to use the avatar the webhook was set up with
-  ping_on_no_mods: false # whether or not to ping mods if a modcall is received while no moderators are online
+  ping_on_no_mods: true # whether or not to ping mods if a modcall is received while no moderators are online
   mod_role_id: # the role ID of the role you want pinged. leave blank to use @here instead
   color: "16777215"
 
@@ -162,6 +162,8 @@ warn_webhook:
 advert_webhook:
   enabled: true
   username: CASE ADVERT 
-  avatar_url: 
+  avatar_url: ""
+  case_img: ['example.com', 'example.com']
+  game_img: ['example.com', 'example.com']
   case_color: "39168"
   game_color: "6697983"
