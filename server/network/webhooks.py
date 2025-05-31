@@ -209,7 +209,7 @@ class Webhooks:
             self.send_webhook(
                 username=username,
                 avatar_url=avatar_url,
-                message=full_message if index == 0 else message, #boy i sure hate this but it should work
+                message=full_message if index == 0 else message, #only add pings to the first URL in the list to avoid unknown-role error
                 FieldA_1="Area:",
                 FieldA_2=area.name,
                 FieldB_1="Roles needed:",
