@@ -16,6 +16,8 @@ __all__ = [
     "ooc_cmd_emoji",
     "ooc_cmd_aussie",
     "ooc_cmd_tag",
+    "ooc_cmd_gamble",
+    "ooc_cmd_aovacha",
 ]
 
 
@@ -326,3 +328,49 @@ def ooc_cmd_tag(client, arg):
                 client.tag = False
     else:
         client.send_ooc('No targets found.')
+
+#ANNI
+
+def load_coin(client):
+    coin = client.server.bank_data[client.hdid]
+    return coin
+
+def save_coin(client, coin):
+    client.server.bank_data[client.hdid] = coin
+    client.server.save_bankdata()
+
+def ooc_cmd_aovacha(client, arg):
+    """
+    Create a new AOVacha account or check balance.
+    Usage: /aovacha
+    """
+    lupabank_list = client.server.bank_data
+    account = client.hdid
+    total = len(client.server.char_list)
+    player_unlocks = len(client.server.charlock_data[client.hdid])
+    if account in lupabank_list:
+        #coin = client.server.client_manager.load_coin(client)
+        coin = load_coin(client)
+        client.send_ooc(f'You currently have {coin} Lawyer Diamonds.\nYou have {player_unlocks} out of {total} characters unlocked!')
+    else:
+        client.send_ooc('Creating your AOVacha account...')
+        client.server.bank_data[account] = 50
+        client.server.save_bankdata()
+        client.send_ooc('Account created! We gave you 50 Lawyer Diamonds to start with! Go pull new characters using "/gamble"!')
+
+def ooc_cmd_gamble(client, arg):
+    """
+    DON'T THINK, JUST PULL.
+    """
+    lupabank_list = client.server.bank_data
+    account = client.hdid
+    if account in lupabank_list:
+        if client.server.bank_data[account] >= 10: 
+            client.send_ooc('Spending 10 Lawyer Diamonds...')
+            # client.server.bank_data[account] -= 10
+            client.gamble()
+        else:
+            client.send_ooc("You need at least 10 Lawyer Diamonds to pull! Go Case!")
+    else:
+        client.send_ooc("You don't have any Lawyer Diamonds! Use /aovacha to get some!")
+

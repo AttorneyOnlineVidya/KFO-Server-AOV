@@ -94,6 +94,10 @@ class TsuServer3:
             self.load_gimps()
             self.load_prompts()
             self.load_miscdata()
+            self.load_bankdata()
+            self.save_bankdata()
+            self.load_charlock_data()
+            self.save_charlock_data()
             self.hub_manager = HubManager(self)
         except yaml.YAMLError:
             print("There was a syntax error parsing a configuration file:")
@@ -385,7 +389,35 @@ class TsuServer3:
                 "thread": "http://aovidya.pw",
                 "update": "http://aovidya.pw/downloads",
             }
-    
+    #ANNI
+    def load_bankdata(self):
+        try:
+            with open('config/bank.yaml', 'r', encoding='utf-8') as bank:
+                self.bank_data = yaml.safe_load(bank)
+        except Exception:
+            logger.debug("Cannot find bank.yaml")
+
+    def save_bankdata(self):
+        try:
+            with open('config/bank.yaml', 'w') as bank:
+                yaml.dump(self.bank_data, bank, indent=4)
+        except Exception:
+            logger.debug("Cannot find bank.yaml")
+
+    def load_charlock_data(self):
+        try:
+            with open('config/charlock.yaml', 'r', encoding='utf-8') as charlock:
+                self.charlock_data = yaml.safe_load(charlock)
+        except Exception:
+            logger.debug("Cannot find charlock.yaml")
+
+    def save_charlock_data(self):
+        try:
+            with open('config/charlock.yaml', 'w') as charlock:
+                yaml.dump(self.charlock_data, charlock, indent=2)
+        except Exception:
+            logger.debug("Cannot find charlock.yaml")
+
     def save_miscdata(self):
         """Save misc data to file."""
         try:
@@ -587,6 +619,8 @@ class TsuServer3:
          - Gimp list
          - Prompts
          - Misc Data
+         - Bank Data
+         - charlock_data
         """
         with open("config/config.yaml", "r") as cfg:
             cfg_yaml = yaml.safe_load(cfg)
@@ -637,6 +671,8 @@ class TsuServer3:
         self.load_gimps()
         self.load_prompts()
         self.load_miscdata()
+        self.load_bankdata()
+        self.load_charlock_data()
 
         import server.commands
 

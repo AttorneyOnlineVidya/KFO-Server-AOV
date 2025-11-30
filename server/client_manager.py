@@ -56,6 +56,7 @@ class ClientManager:
             self.pm_mute = False
             self.mod_call_time = 0
             self.ipid = ipid
+            self.lupacoin = 0
             self.version = ""
             self.software = ""
 
@@ -344,6 +345,63 @@ class ClientManager:
             if self.tag:
                 self.send_ooc(f"You're It! Use /tag [id] to tag someone else!")
 
+        #ANNI
+
+        def gacha_enable(self):
+            """There are no re-rolls, deal with it."""
+            import random
+            total = len(self.server.char_list)
+            gacha_sys = self.server.charlock_data
+            account = self.hdid
+
+            if account in gacha_sys:
+                player_unlocks = self.server.charlock_data[self.hdid]
+                for x in player_unlocks:
+                    self.charcurse.append(x)
+                self.change_character(player_unlocks[0])
+                self.send_ooc(player_unlocks[0])
+                self.send_ooc(f"Welcome back!\nYou have {len(player_unlocks)} out of {total} characters unlocked!")
+            else:
+                try:
+                    free_id = self.area.get_rand_avail_char_id()
+                except AreaError:
+                    raise
+                try:
+                    self.change_character(free_id)
+                    self.charcurse.append(free_id)
+                    self.server.charlock_data[self.hdid] = [free_id]
+                    self.server.save_charlock_data()
+                except ClientError:
+                    raise
+                self.send_ooc(f"You unlocked: {self.char_name}!")
+
+
+        def gamble(self):
+            """LET'S GO GAMBLING"""
+            total = len(self.server.char_list)
+            import random
+            # Check AOV Gems
+            try:
+                free_id = self.area.get_rand_avail_char_id()
+            except AreaError:
+                raise
+            if free_id in [self.server.charlock_data[self.hdid]]:
+                self.send_ooc(f"You pulled {self.char_name}, but you already have them!\nInstead, have a 5 Lawyer Diamond refund.")
+                #refund 5 gems
+            else:
+                try:
+                    self.charcurse.append(free_id)
+                    self.change_character(free_id)
+                    self.server.charlock_data[self.hdid].append(free_id)
+                    self.server.save_charlock_data()
+                except ClientError:
+                    raise
+                self.send_ooc(f"You unlocked: {self.char_name}")
+                self.send_ooc(f"You have {len(self.server.charlock_data[self.hdid])} out of {total} characters unlocked!")
+                self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {self.char_name}!\r\n==================", "1",)
+                # Remove a gem
+
+
         def send_hub_info(self):
             """Send the hub info to the client."""
             info = self.area.area_manager.info
@@ -528,9 +586,10 @@ class ClientManager:
                     if force:
                         for client in self.area.clients:
                             if client.char_id == char_id:
-                                client.char_select()
+                                self.char_select()
                     else:
-                        raise ClientError("Character not available.")
+                        #raise ClientError("Character not available.")
+                        self.char_id = -1
             # We're trying to spectate out of our own accord and either hub or area does not allow spectating.
             if (
                 char_id == -1
@@ -834,6 +893,20 @@ class ClientManager:
             self.ooc_counter = (self.ooc_counter + 1) % times_per_interval
             self.ooc_time[self.ooc_counter] = time.time()
             return 0
+    
+        #ANNI
+
+        def load_coin(self):
+            """Load user Lupacoin."""
+            coin = self.server.bank_data[self.hdid]
+            return coin
+    
+
+        def save_coin(self, coin):
+            """Save user Lupacoin."""
+            self.server.bank_data[self.hdid] = coin
+            self.server.save_bankdata()
+
 
         def reload_character(self):
             """Reload the state of the current character."""

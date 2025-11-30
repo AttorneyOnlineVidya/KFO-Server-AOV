@@ -317,7 +317,8 @@ class AOProtocol(asyncio.Protocol):
 
         self.client.send_done()
         self.client.send_motd()
-        self.client.is_it()
+        #self.client.is_it()
+        self.client.gacha_enable()
         self.client.send_hub_info()
         # TODO: move this code to the area itself so it can handle whatever it needs to later
         if self.client.area.music_autoplay:
