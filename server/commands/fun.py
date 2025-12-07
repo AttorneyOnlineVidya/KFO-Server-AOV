@@ -16,8 +16,8 @@ __all__ = [
     "ooc_cmd_emoji",
     "ooc_cmd_aussie",
     "ooc_cmd_tag",
-    "ooc_cmd_gamble",
-    "ooc_cmd_aovacha",
+    "ooc_cmd_gamba",
+    "ooc_cmd_gacha",
 ]
 
 
@@ -330,47 +330,40 @@ def ooc_cmd_tag(client, arg):
         client.send_ooc('No targets found.')
 
 #ANNI
-
-def load_coin(client):
-    coin = client.server.bank_data[client.hdid]
-    return coin
-
-def save_coin(client, coin):
-    client.server.bank_data[client.hdid] = coin
-    client.server.save_bankdata()
-
-def ooc_cmd_aovacha(client, arg):
+# combine these two below, redundant
+def ooc_cmd_gacha(client, arg):
     """
     Create a new AOVacha account or check balance.
-    Usage: /aovacha
+    Usage: /gacha
     """
     lupabank_list = client.server.bank_data
     account = client.hdid
     total = len(client.server.char_list)
     player_unlocks = len(client.server.charlock_data[client.hdid])
     if account in lupabank_list:
-        #coin = client.server.client_manager.load_coin(client)
-        coin = load_coin(client)
-        client.send_ooc(f'You currently have {coin} Lawyer Diamonds.\nYou have {player_unlocks} out of {total} characters unlocked!')
+        diamonds = client.load_diamonds()
+        client.send_ooc(f'You currently have {diamonds} Lawyer Diamonds.\nYou have {player_unlocks} out of {total} characters unlocked!')
     else:
         client.send_ooc('Creating your AOVacha account...')
-        client.server.bank_data[account] = 50
+        client.server.bank_data[account] = 5
         client.server.save_bankdata()
-        client.send_ooc('Account created! We gave you 50 Lawyer Diamonds to start with! Go pull new characters using "/gamble"!')
+        client.send_ooc('Account created! We gave you 5 Lawyer Diamonds to start with! Go pull a new character using "/gamble"!')
 
-def ooc_cmd_gamble(client, arg):
+def ooc_cmd_gamba(client, arg):
     """
     DON'T THINK, JUST PULL.
+    Usage: /gamba
     """
     lupabank_list = client.server.bank_data
     account = client.hdid
+    diamonds = client.load_diamonds()
     if account in lupabank_list:
-        if client.server.bank_data[account] >= 10: 
-            client.send_ooc('Spending 10 Lawyer Diamonds...')
-            # client.server.bank_data[account] -= 10
+        if client.server.bank_data[account] >= 5: 
+            client.send_ooc('Spending 5 Lawyer Diamonds...')
+            # client.server.bank_data[account] -= 5
             client.gamble()
         else:
-            client.send_ooc("You need at least 10 Lawyer Diamonds to pull! Go Case!")
+            client.send_ooc(f"You need at least 5 Lawyer Diamonds to pull - You have {diamonds}!")
     else:
         client.send_ooc("You don't have any Lawyer Diamonds! Use /aovacha to get some!")
 

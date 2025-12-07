@@ -56,7 +56,7 @@ class ClientManager:
             self.pm_mute = False
             self.mod_call_time = 0
             self.ipid = ipid
-            self.lupacoin = 0
+            self.diamonds = 0
             self.version = ""
             self.software = ""
 
@@ -348,58 +348,104 @@ class ClientManager:
         #ANNI
 
         def gacha_enable(self):
-            """There are no re-rolls, deal with it."""
+            """
+            There are no re-rolls, deal with it.
+            """
             import random
             total = len(self.server.char_list)
             gacha_sys = self.server.charlock_data
             account = self.hdid
+            starter_rarity = self.server.rarity_list['Starters']
 
             if account in gacha_sys:
                 player_unlocks = self.server.charlock_data[self.hdid]
                 for x in player_unlocks:
                     self.charcurse.append(x)
+                # check if default char is in use
                 self.change_character(player_unlocks[0])
-                self.send_ooc(player_unlocks[0])
+                self.send_ooc(player_unlocks)
+                #test1 = "Apollo"
+                #self.send_ooc(self.area.area_manager.char_list[self.char_id])
+                # get charid by char name from rarity list
+                #self.send_ooc(self.area.area_manager.get_char_id_by_name(test1))
                 self.send_ooc(f"Welcome back!\nYou have {len(player_unlocks)} out of {total} characters unlocked!")
             else:
                 try:
-                    free_id = self.area.get_rand_avail_char_id()
+                    self.send_ooc(starter_rarity)
+                    starter_char = random.choice(starter_rarity)
+                    # check if char is in use
+                    #free_id = self.area.get_rand_avail_char_id()
+                    starter_id = self.area.area_manager.get_char_id_by_name(starter_char)
                 except AreaError:
                     raise
                 try:
-                    self.change_character(free_id)
-                    self.charcurse.append(free_id)
-                    self.server.charlock_data[self.hdid] = [free_id]
+                    self.change_character(starter_id)
+                    self.charcurse.append(starter_id)
+                    self.server.charlock_data[self.hdid] = [starter_id]
                     self.server.save_charlock_data()
                 except ClientError:
                     raise
-                self.send_ooc(f"You unlocked: {self.char_name}!")
+                self.send_ooc(f"Starter character unlocked: {self.char_name}!")
 
 
         def gamble(self):
-            """LET'S GO GAMBLING"""
+            """
+            LET'S GO GAMBLING
+            """
+            diamonds = self.load_diamonds()
             total = len(self.server.char_list)
             import random
-            # Check AOV Gems
+            char_rarity = self.server.rarity_list
+            cost = 5
+
+            # roll a dice to check rarity of pull
+            #Common = range(50, 100)
+            Rare = range(20, 50)
+            Epic = range(6, 19)
+            Legendary = range(0, 5)
+            pull = random.randint(0, 100)
+
+            if pull in Rare:
+                pull_rarity = 'Rare'
+            elif pull in Epic:
+                pull_rarity = 'Epic'
+            elif pull in Legendary:
+                pull_rarity = 'Legendary'
+            else:
+                pull_rarity = 'Common'
+            
             try:
-                free_id = self.area.get_rand_avail_char_id()
+                #free_id = self.area.get_rand_avail_char_id()
+                #free_id = random.randint(0,3)
+                new_char = random.choice(char_rarity[pull_rarity])
+                new_char_id = self.area.area_manager.get_char_id_by_name(new_char)
+                free_id = int(new_char_id)
+                #self.send_ooc(free_id)
             except AreaError:
                 raise
-            if free_id in [self.server.charlock_data[self.hdid]]:
-                self.send_ooc(f"You pulled {self.char_name}, but you already have them!\nInstead, have a 5 Lawyer Diamond refund.")
-                #refund 5 gems
+
+            pull_name = self.area.area_manager.char_list[free_id]
+            if free_id in self.server.charlock_data[self.hdid]:
+                self.send_ooc(f"You pulled {pull_name}, but you already have them!\nInstead, have a 2 Lawyer Diamond refund.")
+                diamonds += 2
+                self.save_diamonds(diamonds)
+                self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()})... But it was a duplicate!\r\n==================", "1",)
             else:
                 try:
                     self.charcurse.append(free_id)
-                    self.change_character(free_id)
                     self.server.charlock_data[self.hdid].append(free_id)
                     self.server.save_charlock_data()
                 except ClientError:
                     raise
-                self.send_ooc(f"You unlocked: {self.char_name}")
-                self.send_ooc(f"You have {len(self.server.charlock_data[self.hdid])} out of {total} characters unlocked!")
-                self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {self.char_name}!\r\n==================", "1",)
-                # Remove a gem
+                diamonds -= cost
+                self.save_diamonds(diamonds)
+                self.send_ooc(f"You unlocked: {pull_name} ({pull_rarity.upper()})\nLawyer Diamonds remaining: {diamonds}\nYou have {len(self.server.charlock_data[self.hdid])} out of {total} characters unlocked!")
+                if pull in Rare:
+                    self.server.send_all_cmd_pred("CT", "AOVacha", f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()})\r\n==================", "1",)
+                elif pull in Epic:
+                    self.server.send_all_cmd_pred("CT", "AOVacha", f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()} ⭐)\r\n==================", "1",)
+                elif pull in Legendary:
+                    self.server.send_all_cmd_pred("CT", "AOVacha", f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()} 🌟)\r\n==================", "1",)
 
 
         def send_hub_info(self):
@@ -896,15 +942,15 @@ class ClientManager:
     
         #ANNI
 
-        def load_coin(self):
-            """Load user Lupacoin."""
-            coin = self.server.bank_data[self.hdid]
-            return coin
+        def load_diamonds(self):
+            """Load user Lawyer Diamonds."""
+            diamonds = self.server.bank_data[self.hdid]
+            return diamonds
     
 
-        def save_coin(self, coin):
-            """Save user Lupacoin."""
-            self.server.bank_data[self.hdid] = coin
+        def save_diamonds(self, diamonds):
+            """Save user Lawyer Diamonds."""
+            self.server.bank_data[self.hdid] = diamonds
             self.server.save_bankdata()
 
 

@@ -98,6 +98,7 @@ class TsuServer3:
             self.save_bankdata()
             self.load_charlock_data()
             self.save_charlock_data()
+            self.load_rarity_list()
             self.hub_manager = HubManager(self)
         except yaml.YAMLError:
             print("There was a syntax error parsing a configuration file:")
@@ -389,6 +390,7 @@ class TsuServer3:
                 "thread": "http://aovidya.pw",
                 "update": "http://aovidya.pw/downloads",
             }
+    
     #ANNI
     def load_bankdata(self):
         try:
@@ -417,6 +419,13 @@ class TsuServer3:
                 yaml.dump(self.charlock_data, charlock, indent=2)
         except Exception:
             logger.debug("Cannot find charlock.yaml")
+
+    def load_rarity_list(self):
+        try:
+            with open('storage/charlists/rarity.yaml', 'r', encoding='utf-8') as rarity:
+                self.rarity_list = yaml.safe_load(rarity)
+        except Exception:
+            logger.debug("Cannot find rarity.yaml")
 
     def save_miscdata(self):
         """Save misc data to file."""
@@ -621,6 +630,7 @@ class TsuServer3:
          - Misc Data
          - Bank Data
          - charlock_data
+         - Rarity List
         """
         with open("config/config.yaml", "r") as cfg:
             cfg_yaml = yaml.safe_load(cfg)
@@ -673,6 +683,7 @@ class TsuServer3:
         self.load_miscdata()
         self.load_bankdata()
         self.load_charlock_data()
+        self.load_rarity_list()
 
         import server.commands
 
