@@ -164,6 +164,8 @@ class TsuServer3:
                 # Don't end the whole server if bridgebot destroys itself
                 print(ex)
         asyncio.ensure_future(self.schedule_unbans())
+        asyncio.ensure_future(self.diamond_loop())
+        # ANNI
 
         database.log_misc("start")
         print("Server started and is listening on port {}".format(
@@ -185,6 +187,13 @@ class TsuServer3:
         while True:
             database.schedule_unbans()
             await asyncio.sleep(3600 * 12)
+
+    # ANNI 
+    async def diamond_loop(self):
+        while True:
+            self.client_manager.diamond_mine()
+            await asyncio.sleep(1800)
+            # 30 Minutes
 
     @property
     def version(self):
@@ -532,6 +541,17 @@ class TsuServer3:
         ooc_name = "{}[{}][{}]".format(
             "<dollar>M", client.area.id, client.name)
         self.send_all_cmd_pred("CT", ooc_name, msg, pred=lambda x: x.is_mod)
+
+    # ANNI
+    def load_diamonds(self, client):
+        """Load user Lawyer Diamonds."""
+        diamonds = self.bank_data[client.hdid]
+        return diamonds
+    
+    def save_diamonds(self, client, diamonds):
+        """Save user Lawyer Diamonds."""
+        self.bank_data[client.hdid] = diamonds
+        self.save_bankdata()
 
     def broadcast_need(self, client, msg):
         """

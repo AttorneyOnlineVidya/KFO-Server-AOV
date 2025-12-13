@@ -341,7 +341,7 @@ def ooc_cmd_gacha(client, arg):
     total = len(client.server.char_list)
     player_unlocks = len(client.server.charlock_data[client.hdid])
     if account in lupabank_list:
-        diamonds = client.load_diamonds()
+        diamonds = client.server.load_diamonds(client)
         client.send_ooc(f'You currently have {diamonds} Lawyer Diamonds.\nYou have {player_unlocks} out of {total} characters unlocked!')
     else:
         client.send_ooc('Creating your AOVacha account...')
@@ -356,14 +356,14 @@ def ooc_cmd_gamba(client, arg):
     """
     lupabank_list = client.server.bank_data
     account = client.hdid
-    diamonds = client.load_diamonds()
+    diamonds = client.server.load_diamonds(client)
     if account in lupabank_list:
         if client.server.bank_data[account] >= 5: 
             client.send_ooc('Spending 5 Lawyer Diamonds...')
             # client.server.bank_data[account] -= 5
             client.gamble()
         else:
-            client.send_ooc(f"You need at least 5 Lawyer Diamonds to pull - You have {diamonds}!")
+            client.send_ooc(f"You need at least 5 Lawyer Diamonds to gamba - You have {diamonds}.")
     else:
         client.send_ooc("You don't have any Lawyer Diamonds! Use /aovacha to get some!")
 

@@ -352,6 +352,7 @@ class ClientManager:
             There are no re-rolls, deal with it.
             """
             import random
+            diamonds = self.server.load_diamonds(self)
             total = len(self.server.char_list)
             gacha_sys = self.server.charlock_data
             account = self.hdid
@@ -368,7 +369,7 @@ class ClientManager:
                 #self.send_ooc(self.area.area_manager.char_list[self.char_id])
                 # get charid by char name from rarity list
                 #self.send_ooc(self.area.area_manager.get_char_id_by_name(test1))
-                self.send_ooc(f"Welcome back!\nYou have {len(player_unlocks)} out of {total} characters unlocked!")
+                self.send_ooc(f"Welcome back!\nYou have {len(player_unlocks)} out of {total} characters unlocked and {diamonds} Lawyer Diamonds available!")
             else:
                 try:
                     self.send_ooc(starter_rarity)
@@ -392,7 +393,7 @@ class ClientManager:
             """
             LET'S GO GAMBLING
             """
-            diamonds = self.load_diamonds()
+            diamonds = self.server.load_diamonds(self)
             total = len(self.server.char_list)
             import random
             char_rarity = self.server.rarity_list
@@ -428,7 +429,7 @@ class ClientManager:
             if free_id in self.server.charlock_data[self.hdid]:
                 self.send_ooc(f"You pulled {pull_name}, but you already have them!\nInstead, have a 2 Lawyer Diamond refund.")
                 diamonds += 2
-                self.save_diamonds(diamonds)
+                self.server.save_diamonds(self, diamonds)
                 self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()})... But it was a duplicate!\r\n==================", "1",)
             else:
                 try:
@@ -438,8 +439,8 @@ class ClientManager:
                 except ClientError:
                     raise
                 diamonds -= cost
-                self.save_diamonds(diamonds)
-                self.send_ooc(f"You unlocked: {pull_name} ({pull_rarity.upper()})\nLawyer Diamonds remaining: {diamonds}\nYou have {len(self.server.charlock_data[self.hdid])} out of {total} characters unlocked!")
+                self.server.save_diamonds(self, diamonds)
+                self.send_ooc(f"You unlocked: {pull_name} ({pull_rarity.upper()})\nYou have {len(self.server.charlock_data[self.hdid])} out of {total} characters unlocked!\nLawyer Diamonds remaining: {diamonds}")
                 if pull in Rare:
                     self.server.send_all_cmd_pred("CT", "AOVacha", f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()})\r\n==================", "1",)
                 elif pull in Epic:
@@ -942,16 +943,16 @@ class ClientManager:
     
         #ANNI
 
-        def load_diamonds(self):
-            """Load user Lawyer Diamonds."""
-            diamonds = self.server.bank_data[self.hdid]
-            return diamonds
+        #def load_diamonds(self):
+        #    """Load user Lawyer Diamonds."""
+        #    diamonds = self.server.bank_data[self.hdid]
+        #    return diamonds
     
 
-        def save_diamonds(self, diamonds):
-            """Save user Lawyer Diamonds."""
-            self.server.bank_data[self.hdid] = diamonds
-            self.server.save_bankdata()
+        #def save_diamonds(self, diamonds):
+        #    """Save user Lawyer Diamonds."""
+        #    self.server.bank_data[self.hdid] = diamonds
+        #    self.server.save_bankdata()
 
 
         def reload_character(self):
@@ -2468,6 +2469,23 @@ class ClientManager:
 
     def get_mods(self):
         return [c for c in self.clients if c.is_mod]
+    
+    # ANNI
+    def diamond_mine(self):
+            """
+            Attempts to obtain for Lawyer Diamonds.
+            """
+            import random
+            mine = random.randint(1, 5)
+            for client in self.clients:
+                lupabank_list = client.server.bank_data
+                if client.hdid in lupabank_list:
+                    coin = self.server.load_diamonds(client)
+                    coin += mine
+                    self.server.save_diamonds(client, coin)
+                    client.send_ooc(f'Delivery! You have obtained {mine} Lawyer Diamonds!\nYou now have {coin} Lawyer Diamonds total.')
+                else:
+                    return
         
     class BattleChar:
         def __init__(self, client, fighter_name, fighter):
