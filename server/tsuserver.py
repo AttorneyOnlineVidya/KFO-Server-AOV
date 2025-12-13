@@ -190,10 +190,11 @@ class TsuServer3:
 
     # ANNI 
     async def diamond_loop(self):
+        mine_freq = self.misc_data["diamond_frequency"]
         while True:
             self.client_manager.diamond_mine()
-            await asyncio.sleep(1800)
-            # 30 Minutes
+            await asyncio.sleep(mine_freq)
+            # time in seconds
 
     @property
     def version(self):

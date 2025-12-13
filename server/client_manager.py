@@ -362,20 +362,17 @@ class ClientManager:
                 player_unlocks = self.server.charlock_data[self.hdid]
                 for x in player_unlocks:
                     self.charcurse.append(x)
-                # check if default char is in use
+                # check if default char is in use with:
+                # check_char_taken(), pick another if so or put in spectate id -1
                 self.change_character(player_unlocks[0])
-                self.send_ooc(player_unlocks)
-                #test1 = "Apollo"
-                #self.send_ooc(self.area.area_manager.char_list[self.char_id])
+                # self.send_ooc(player_unlocks)
                 # get charid by char name from rarity list
-                #self.send_ooc(self.area.area_manager.get_char_id_by_name(test1))
                 self.send_ooc(f"Welcome back!\nYou have {len(player_unlocks)} out of {total} characters unlocked and {diamonds} Lawyer Diamonds available!")
             else:
                 try:
                     self.send_ooc(starter_rarity)
                     starter_char = random.choice(starter_rarity)
-                    # check if char is in use
-                    #free_id = self.area.get_rand_avail_char_id()
+                    # check if char is in use check_char_taken()
                     starter_id = self.area.area_manager.get_char_id_by_name(starter_char)
                 except AreaError:
                     raise
@@ -400,7 +397,7 @@ class ClientManager:
             cost = 5
 
             # roll a dice to check rarity of pull
-            #Common = range(50, 100)
+            # Common = range(50, 100)
             Rare = range(20, 50)
             Epic = range(6, 19)
             Legendary = range(0, 5)
@@ -416,12 +413,11 @@ class ClientManager:
                 pull_rarity = 'Common'
             
             try:
-                #free_id = self.area.get_rand_avail_char_id()
                 #free_id = random.randint(0,3)
                 new_char = random.choice(char_rarity[pull_rarity])
                 new_char_id = self.area.area_manager.get_char_id_by_name(new_char)
                 free_id = int(new_char_id)
-                #self.send_ooc(free_id)
+                # check_char_taken()
             except AreaError:
                 raise
 
@@ -442,11 +438,11 @@ class ClientManager:
                 self.server.save_diamonds(self, diamonds)
                 self.send_ooc(f"You unlocked: {pull_name} ({pull_rarity.upper()})\nYou have {len(self.server.charlock_data[self.hdid])} out of {total} characters unlocked!\nLawyer Diamonds remaining: {diamonds}")
                 if pull in Rare:
-                    self.server.send_all_cmd_pred("CT", "AOVacha", f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()})\r\n==================", "1",)
+                    self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()})\r\n==================", "1",)
                 elif pull in Epic:
-                    self.server.send_all_cmd_pred("CT", "AOVacha", f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()} ⭐)\r\n==================", "1",)
+                    self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()} ⭐)\r\n==================", "1",)
                 elif pull in Legendary:
-                    self.server.send_all_cmd_pred("CT", "AOVacha", f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()} 🌟)\r\n==================", "1",)
+                    self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()} 🌟)\r\n==================", "1",)
 
 
         def send_hub_info(self):
@@ -635,8 +631,8 @@ class ClientManager:
                             if client.char_id == char_id:
                                 self.char_select()
                     else:
-                        #raise ClientError("Character not available.")
-                        self.char_id = -1
+                        raise ClientError("Character not available.")
+                        #self.char_id = -1 ANNI
             # We're trying to spectate out of our own accord and either hub or area does not allow spectating.
             if (
                 char_id == -1
@@ -941,19 +937,6 @@ class ClientManager:
             self.ooc_time[self.ooc_counter] = time.time()
             return 0
     
-        #ANNI
-
-        #def load_diamonds(self):
-        #    """Load user Lawyer Diamonds."""
-        #    diamonds = self.server.bank_data[self.hdid]
-        #    return diamonds
-    
-
-        #def save_diamonds(self, diamonds):
-        #    """Save user Lawyer Diamonds."""
-        #    self.server.bank_data[self.hdid] = diamonds
-        #    self.server.save_bankdata()
-
 
         def reload_character(self):
             """Reload the state of the current character."""

@@ -18,6 +18,7 @@ __all__ = [
     "ooc_cmd_tag",
     "ooc_cmd_gamba",
     "ooc_cmd_gacha",
+    "ooc_cmd_unlocks",
 ]
 
 
@@ -367,3 +368,12 @@ def ooc_cmd_gamba(client, arg):
     else:
         client.send_ooc("You don't have any Lawyer Diamonds! Use /aovacha to get some!")
 
+def ooc_cmd_unlocks(client, arg):
+    """
+    See unlocked characters.
+    Usage: /unlocks
+    """
+    unlock_list = []
+    for i in client.charcurse:
+        unlock_list.append(client.area.area_manager.char_list[i])
+    client.send_ooc(unlock_list)

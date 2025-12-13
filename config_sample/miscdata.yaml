@@ -24,3 +24,6 @@ game_advert_titles:
     - A Game Is Being Advertised!
     - Game Time!
     - When's Whose Court?
+
+# Frequency for obtaining pulls in seconds
+diamond_frequency: 1800
