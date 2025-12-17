@@ -1424,7 +1424,7 @@ class AOProtocol(asyncio.Protocol):
             blipname,
             slide,
         )
-
+        self.client.bonus_check()
         # DRO client support
         if self.client.software == "DRO":
             # send it back to the client

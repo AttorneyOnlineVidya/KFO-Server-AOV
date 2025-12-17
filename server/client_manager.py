@@ -2265,6 +2265,19 @@ class ClientManager:
                     message = re.sub(x, select[x], message, flags=re.IGNORECASE)
             message = message[::-1]
             return message
+        
+        # Anni
+        def bonus_check(self):
+            import random
+            ding = random.randint(1, 400)
+            diamonds = self.server.load_diamonds(self)
+            status = self.area.status
+            if status == "CASING" or status == "RECESS" or status == "LOOKING-FOR-PLAYERS":
+                if ding < 5:
+                    self.send_ooc("DING! You have been awarded 5 Lawyer Diamonds! Go /gamba!")
+                    diamonds += 5
+                    self.server.save_diamonds(self, diamonds)
+
             
 
     def __init__(self, server):
@@ -2456,20 +2469,21 @@ class ClientManager:
     
     # ANNI
     def diamond_mine(self):
-            """
-            Attempts to obtain for Lawyer Diamonds.
-            """
-            import random
-            mine = random.randint(1, 5)
-            for client in self.clients:
-                lupabank_list = client.server.bank_data
-                if client.hdid in lupabank_list:
-                    coin = self.server.load_diamonds(client)
-                    coin += mine
-                    self.server.save_diamonds(client, coin)
-                    client.send_ooc(f'Delivery! You have obtained {mine} Lawyer Diamonds!\nYou now have {coin} Lawyer Diamonds total.')
-                else:
-                    return
+        """
+        Attempts to obtain for Lawyer Diamonds.
+        """
+        import random
+        mine = random.randint(1, 5)
+        for client in self.clients:
+            lupabank_list = client.server.bank_data
+            if client.hdid in lupabank_list:
+                coin = self.server.load_diamonds(client)
+                coin += mine
+                self.server.save_diamonds(client, coin)
+                client.send_ooc(f'Delivery! You have obtained {mine} Lawyer Diamonds!\nYou now have {coin} Lawyer Diamonds total.')
+            else:
+                return
+                
         
     class BattleChar:
         def __init__(self, client, fighter_name, fighter):
