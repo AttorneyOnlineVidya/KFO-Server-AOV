@@ -364,10 +364,11 @@ class ClientManager:
                     self.charcurse.append(x)
                 # check if default char is in use with:
                 # check_char_taken(), pick another if so or put in spectate id -1
-                self.change_character(player_unlocks[0])
+                self.change_character(random.choice(player_unlocks))
                 # self.send_ooc(player_unlocks)
                 # get charid by char name from rarity list
-                self.send_ooc(f"Welcome back!\nYou have {len(player_unlocks)} out of {total} characters unlocked and {diamonds} Lawyer Diamonds available!")
+                self.send_ooc(f"Welcome back to Attorneys of Valor 2!\nYou have {len(player_unlocks)} out of {total} characters unlocked and {diamonds} Lawyer Diamonds available!")
+                self.send_ooc(f"Use /gamba to pull or go case to get more Lawyer Diamonds!")
             else:
                 try:
                     self.send_ooc(starter_rarity)

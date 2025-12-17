@@ -16,9 +16,10 @@ __all__ = [
     "ooc_cmd_emoji",
     "ooc_cmd_aussie",
     "ooc_cmd_tag",
+    "ooc_cmd_ld",
     "ooc_cmd_gamba",
-    "ooc_cmd_gacha",
     "ooc_cmd_unlocks",
+    "ooc_cmd_freq",
 ]
 
 
@@ -331,11 +332,10 @@ def ooc_cmd_tag(client, arg):
         client.send_ooc('No targets found.')
 
 #ANNI
-# combine these two below, redundant
-def ooc_cmd_gacha(client, arg):
+def ooc_cmd_ld(client, arg):
     """
-    Create a new AOVacha account or check balance.
-    Usage: /gacha
+    Create a new Attorneys of Valor 2 account or check Lawyer Diamonds balance.
+    Usage: /ld
     """
     lupabank_list = client.server.bank_data
     account = client.hdid
@@ -345,10 +345,10 @@ def ooc_cmd_gacha(client, arg):
         diamonds = client.server.load_diamonds(client)
         client.send_ooc(f'You currently have {diamonds} Lawyer Diamonds.\nYou have {player_unlocks} out of {total} characters unlocked!')
     else:
-        client.send_ooc('Creating your AOVacha account...')
+        client.send_ooc('Creating your Attorneys of Valor 2 account...')
         client.server.bank_data[account] = 5
         client.server.save_bankdata()
-        client.send_ooc('Account created! We gave you 5 Lawyer Diamonds to start with! Go pull a new character using "/gamble"!')
+        client.send_ooc('Account created! We gave you 5 Lawyer Diamonds to start with! You can now roll for a new character using "/gamba"!')
 
 def ooc_cmd_gamba(client, arg):
     """
@@ -358,6 +358,9 @@ def ooc_cmd_gamba(client, arg):
     lupabank_list = client.server.bank_data
     account = client.hdid
     diamonds = client.server.load_diamonds(client)
+    total = len(client.server.char_list)
+    player_unlocks = len(client.server.charlock_data[client.hdid])
+
     if account in lupabank_list:
         if client.server.bank_data[account] >= 5: 
             client.send_ooc('Spending 5 Lawyer Diamonds...')
@@ -366,7 +369,10 @@ def ooc_cmd_gamba(client, arg):
         else:
             client.send_ooc(f"You need at least 5 Lawyer Diamonds to gamba - You have {diamonds}.")
     else:
-        client.send_ooc("You don't have any Lawyer Diamonds! Use /aovacha to get some!")
+        client.send_ooc('Creating your Attorneys of Valor 2 account...')
+        client.server.bank_data[account] = 5
+        client.server.save_bankdata()
+        client.send_ooc('Account created! We gave you 5 Lawyer Diamonds to start with! You can now roll for a new character using "/gamba"!')
 
 def ooc_cmd_unlocks(client, arg):
     """
@@ -377,3 +383,23 @@ def ooc_cmd_unlocks(client, arg):
     for i in client.charcurse:
         unlock_list.append(client.area.area_manager.char_list[i])
     client.send_ooc(unlock_list)
+
+@mod_only()
+def ooc_cmd_freq(client, arg):
+    """
+    Shows or changes diamond mining frequency
+    Usage: /freq [seconds]
+    """
+    mine_freq = client.server.misc_data["diamond_frequency"]
+    check = arg.isdigit()
+    if len(arg) == 0:
+        client.send_ooc(f"Current mining frequency: {mine_freq}")
+    else:
+        if check:
+            mine_freq = int(arg)
+            client.server.save_miscdata()
+            client.server.refresh()
+            client.send_ooc(f"New mining frequency: {int(arg)}")
+            # NOTE - This updates in miscdata but not the async loop
+        else:
+            raise ArgumentError("Frequency must be a number in seconds.")
