@@ -16,7 +16,7 @@ __all__ = [
     "ooc_cmd_emoji",
     "ooc_cmd_aussie",
     "ooc_cmd_tag",
-    "ooc_cmd_ld",
+    "ooc_cmd_valor",
     "ooc_cmd_gamba",
     "ooc_cmd_unlocks",
     "ooc_cmd_freq",
@@ -332,10 +332,10 @@ def ooc_cmd_tag(client, arg):
         client.send_ooc('No targets found.')
 
 #ANNI
-def ooc_cmd_ld(client, arg):
+def ooc_cmd_valor(client, arg):
     """
-    Create a new Attorneys of Valor 2 account or check Lawyer Diamonds balance.
-    Usage: /ld
+    Check your Attorneys of Valor 2 Lawyer Diamonds balance.
+    Usage: /valor
     """
     lupabank_list = client.server.bank_data
     account = client.hdid
@@ -345,10 +345,7 @@ def ooc_cmd_ld(client, arg):
         diamonds = client.server.load_diamonds(client)
         client.send_ooc(f'You currently have {diamonds} Lawyer Diamonds.\nYou have {player_unlocks} out of {total} characters unlocked!')
     else:
-        client.send_ooc('Creating your Attorneys of Valor 2 account...')
-        client.server.bank_data[account] = 5
-        client.server.save_bankdata()
-        client.send_ooc('Account created! We gave you 5 Lawyer Diamonds to start with! You can now roll for a new character using "/gamba"!')
+        raise ClientError("You don't have a bank for some reason. Uh oh.")
 
 def ooc_cmd_gamba(client, arg):
     """
@@ -367,12 +364,13 @@ def ooc_cmd_gamba(client, arg):
             # client.server.bank_data[account] -= 5
             client.gamble()
         else:
-            client.send_ooc(f"You need at least 5 Lawyer Diamonds to gamba - You have {diamonds}.")
+            client.send_ooc(f"You need at least 5 Lawyer Diamonds to pull - You have {diamonds}. Go case!")
     else:
+        # Fallback in case it doesn't create at start
         client.send_ooc('Creating your Attorneys of Valor 2 account...')
-        client.server.bank_data[account] = 5
+        client.server.bank_data[account] = 10
         client.server.save_bankdata()
-        client.send_ooc('Account created! We gave you 5 Lawyer Diamonds to start with! You can now roll for a new character using "/gamba"!')
+        client.send_ooc('Account created! We gave you 10 Lawyer Diamonds to start with! You can now roll for a new character using "/gamba"!')
 
 def ooc_cmd_unlocks(client, arg):
     """

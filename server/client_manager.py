@@ -352,7 +352,6 @@ class ClientManager:
             There are no re-rolls, deal with it.
             """
             import random
-            diamonds = self.server.load_diamonds(self)
             total = len(self.server.char_list)
             gacha_sys = self.server.charlock_data
             account = self.hdid
@@ -360,6 +359,7 @@ class ClientManager:
 
             if account in gacha_sys:
                 player_unlocks = self.server.charlock_data[self.hdid]
+                diamonds = self.server.load_diamonds(self)
                 for x in player_unlocks:
                     self.charcurse.append(x)
                 # check if default char is in use with:
@@ -371,21 +371,27 @@ class ClientManager:
                 self.send_ooc(f"Use /gamba to pull or go case to get more Lawyer Diamonds!")
             else:
                 try:
-                    self.send_ooc(starter_rarity)
+                    # Roll a random Starter rarity character
                     starter_char = random.choice(starter_rarity)
                     # check if char is in use check_char_taken()
                     starter_id = self.area.area_manager.get_char_id_by_name(starter_char)
                 except AreaError:
                     raise
                 try:
+                    # Change to that character and add to charcurse list, add bank
                     self.change_character(starter_id)
                     self.charcurse.append(starter_id)
                     self.server.charlock_data[self.hdid] = [starter_id]
                     self.server.save_charlock_data()
+                    # hard code starting balance fuck youuuuu
+                    self.server.bank_data[account] = 10
+                    self.server.save_bankdata()
                 except ClientError:
                     raise
-                self.send_ooc(f"Starter character unlocked: {self.char_name}!")
-
+                self.send_ooc(f"Welcome to Attorneys of Valor 2!\nHere's your free Starter character:")
+                self.send_ooc(f"Character unlocked: {self.char_name}!")
+                self.send_ooc(f"We've also given you 10 Lawyer Diamonds to start - Use /gamba to pull or go case to get more!")
+                
 
         def gamble(self):
             """
@@ -633,7 +639,8 @@ class ClientManager:
                                 self.char_select()
                     else:
                         raise ClientError("Character not available.")
-                        #self.char_id = -1 ANNI
+                        #self.char_id = -1 
+                        # ANNI
             # We're trying to spectate out of our own accord and either hub or area does not allow spectating.
             if (
                 char_id == -1
