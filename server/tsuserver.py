@@ -7,6 +7,7 @@ import traceback
 import websockets
 import geoip2.database
 import yaml
+from pathlib import Path
 
 import server.logger
 from server import database
@@ -404,11 +405,16 @@ class TsuServer3:
     
     #ANNI
     def load_bankdata(self):
-        try:
+        file = Path('config/bank.yaml')
+        if file.exists():
             with open('config/bank.yaml', 'r', encoding='utf-8') as bank:
                 self.bank_data = yaml.safe_load(bank)
-        except Exception:
-            logger.debug("Cannot find bank.yaml")
+        else:
+            with open('config/bank.yaml', 'w+', encoding='utf-8') as bank:
+                self.bank_data = yaml.safe_load(bank)
+                self.bank_data = {
+                        0: 0
+                    }
 
     def save_bankdata(self):
         try:
@@ -418,11 +424,19 @@ class TsuServer3:
             logger.debug("Cannot find bank.yaml")
 
     def load_charlock_data(self):
-        try:
-            with open('config/charlock.yaml', 'r', encoding='utf-8') as charlock:
+        file = Path('config/charlock.yaml')
+        if file.exists():
+            try:
+                with open('config/charlock.yaml', 'r', encoding='utf-8') as charlock:
+                    self.charlock_data = yaml.safe_load(charlock)
+            except Exception:
+                logger.debug("Cannot find charlock.yaml")
+        else:
+            with open('config/charlock.yaml', 'w+', encoding='utf-8') as charlock:
                 self.charlock_data = yaml.safe_load(charlock)
-        except Exception:
-            logger.debug("Cannot find charlock.yaml")
+                self.charlock_data = {
+                    0: 0
+                }
 
     def save_charlock_data(self):
         try:
