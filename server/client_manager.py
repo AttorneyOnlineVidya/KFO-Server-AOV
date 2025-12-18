@@ -360,13 +360,16 @@ class ClientManager:
             if account in gacha_sys:
                 player_unlocks = self.server.charlock_data[self.hdid]
                 diamonds = self.server.load_diamonds(self)
+                welcome = random.choice(player_unlocks)
                 for x in player_unlocks:
                     self.charcurse.append(x)
                 # check if default char is in use with:
                 # check_char_taken(), pick another if so or put in spectate id -1
-                self.change_character(random.choice(player_unlocks))
-                # self.send_ooc(player_unlocks)
-                # get charid by char name from rarity list
+                if self.area.is_char_available(welcome):
+                    self.change_character(welcome)
+                else:
+                    self.change_character(-1)
+                    self.send_ooc(f"Moved to Spectator.")
                 self.send_ooc(f"Welcome back to Attorneys of Valor 2!\nYou have {len(player_unlocks)} out of {total} characters unlocked and {diamonds} Lawyer Diamonds available!")
                 self.send_ooc(f"Use /gamba to pull or go case to get more Lawyer Diamonds!")
             else:
@@ -397,9 +400,9 @@ class ClientManager:
             """
             LET'S GO GAMBLING
             """
+            import random
             diamonds = self.server.load_diamonds(self)
             total = len(self.server.char_list)
-            import random
             char_rarity = self.server.rarity_list
             cost = 5
 
@@ -424,7 +427,6 @@ class ClientManager:
                 new_char = random.choice(char_rarity[pull_rarity])
                 new_char_id = self.area.area_manager.get_char_id_by_name(new_char)
                 free_id = int(new_char_id)
-                # check_char_taken()
             except AreaError:
                 raise
 
@@ -639,8 +641,6 @@ class ClientManager:
                                 self.char_select()
                     else:
                         raise ClientError("Character not available.")
-                        #self.char_id = -1 
-                        # ANNI
             # We're trying to spectate out of our own accord and either hub or area does not allow spectating.
             if (
                 char_id == -1

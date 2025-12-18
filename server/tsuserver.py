@@ -447,7 +447,7 @@ class TsuServer3:
 
     def load_rarity_list(self):
         try:
-            with open('storage/charlists/rarity.yaml', 'r', encoding='utf-8') as rarity:
+            with open('storage/rarity.yaml', 'r', encoding='utf-8') as rarity:
                 self.rarity_list = yaml.safe_load(rarity)
         except Exception:
             logger.debug("Cannot find rarity.yaml")
