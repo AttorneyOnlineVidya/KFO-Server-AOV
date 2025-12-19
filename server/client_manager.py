@@ -644,8 +644,8 @@ class ClientManager:
                 #if not self.is_mod and self not in self.area.owners:
                 if len(self.charcurse) > 0:
                     if char_id not in self.charcurse:
-                        #raise ClientError("Character not available.")
-                        char_id = -1 # ANNI
+                        raise ClientError("Character not available.")
+                        #char_id = -1 # ANNI
                     force = True
                 if not self.area.is_char_available(char_id):
                     if force:
