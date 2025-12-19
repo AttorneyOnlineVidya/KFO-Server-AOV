@@ -356,6 +356,7 @@ class ClientManager:
             gacha_sys = self.server.charlock_data
             account = self.hdid
             starter_rarity = self.server.rarity_list['Starters']
+            common_rarity = self.server.rarity_list['Common']
 
             if account in gacha_sys:
                 player_unlocks = self.server.charlock_data[self.hdid]
@@ -367,16 +368,28 @@ class ClientManager:
                 if self.area.is_char_available(welcome):
                     self.change_character(welcome)
                 else:
-                    self.change_character(-1)
-                    self.send_ooc(f"Moved to Spectator.")
+                    # try another one if it is in use
+                    retry = random.choice(player_unlocks)
+                    if self.area.is_char_available(retry):
+                        self.change_character(retry)
+                    else:
+                        # fuck it, spectator
+                        self.send_ooc("Characters in use - moved to Spectator.")
+                        self.change_character(-1)
                 self.send_ooc(f"Welcome back to Attorneys of Valor 2!\nYou have {len(player_unlocks)} out of {total} characters unlocked and {diamonds} Lawyer Diamonds available!")
                 self.send_ooc(f"Use /gamba to pull or go case to get more Lawyer Diamonds!")
             else:
                 try:
                     # Roll a random Starter rarity character
                     starter_char = random.choice(starter_rarity)
-                    # check if char is in use check_char_taken()
                     starter_id = self.area.area_manager.get_char_id_by_name(starter_char)
+                    if not self.area.is_char_available(starter_id):
+                        # roll a common if starter not available in area
+                        retry_starter_char = random.choice(common_rarity)
+                        starter_id = self.area.area_manager.get_char_id_by_name(retry_starter_char)
+                        if not self.area.is_char_available(starter_id):
+                            # welcome to die
+                            starter_id = -1
                 except AreaError:
                     raise
                 try:
