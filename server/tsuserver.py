@@ -440,7 +440,7 @@ class TsuServer3:
     def save_charlock_data(self):
         try:
             with open('config/charlock.yaml', 'w') as charlock:
-                yaml.dump(self.charlock_data, charlock, indent=2)
+                yaml.dump(self.charlock_data, charlock, indent=2, default_flow_style=None)
         except Exception:
             logger.debug("Cannot find charlock.yaml")
 
