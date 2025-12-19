@@ -40,6 +40,7 @@ class TsuServer3:
         self.allowed_iniswaps = []
         self.char_list = None
         self.char_emotes = None
+        self.mine_frequency = 5
         self.music_list = []
         self.music_whitelist = []
         self.backgrounds = None
@@ -191,11 +192,9 @@ class TsuServer3:
 
     # ANNI 
     async def diamond_loop(self):
-        #self.load_miscdata()
-        mine_freq = self.misc_data["diamond_frequency"]
         while True:
             self.client_manager.diamond_mine()
-            await asyncio.sleep(int(mine_freq))
+            await asyncio.sleep(self.mine_frequency)
             # time in seconds
 
     @property

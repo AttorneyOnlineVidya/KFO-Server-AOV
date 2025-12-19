@@ -363,8 +363,7 @@ class ClientManager:
                 welcome = random.choice(player_unlocks)
                 for x in player_unlocks:
                     self.charcurse.append(x)
-                # check if default char is in use with:
-                # check_char_taken(), pick another if so or put in spectate id -1
+                # check if default char is in use
                 if self.area.is_char_available(welcome):
                     self.change_character(welcome)
                 else:
@@ -632,7 +631,8 @@ class ClientManager:
                 #if not self.is_mod and self not in self.area.owners:
                 if len(self.charcurse) > 0:
                     if char_id not in self.charcurse:
-                        raise ClientError("Character not available.")
+                        #raise ClientError("Character not available.")
+                        char_id = -1 # ANNI
                     force = True
                 if not self.area.is_char_available(char_id):
                     if force:

@@ -385,7 +385,7 @@ def ooc_cmd_unlocks(client, arg):
 @mod_only()
 def ooc_cmd_freq(client, arg):
     """
-    Shows or changes diamond mining frequency
+    Shows or changes diamond mining frequency.
     Usage: /freq [seconds]
     """
     mine_freq = client.server.misc_data["diamond_frequency"]
@@ -394,10 +394,10 @@ def ooc_cmd_freq(client, arg):
         client.send_ooc(f"Current mining frequency: {mine_freq}")
     else:
         if check:
-            mine_freq = int(arg)
+            client.server.mine_frequency = int(arg)
+            client.server.misc_data["diamond_frequency"] = int(arg)
             client.server.save_miscdata()
-            client.server.refresh()
             client.send_ooc(f"New mining frequency: {int(arg)}")
-            # NOTE - This updates in miscdata but not the async loop
+            # note - This updates on the next loop
         else:
             raise ArgumentError("Frequency must be a number in seconds.")
