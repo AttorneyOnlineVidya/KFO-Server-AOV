@@ -419,7 +419,7 @@ class ClientManager:
             cost = 5
 
             # roll a dice to check rarity of pull
-            # Common = range(50, 100)
+            #Common = range(51, 100)
             Rare = range(20, 50)
             Epic = range(6, 19)
             Legendary = range(0, 5)
@@ -443,11 +443,16 @@ class ClientManager:
                 raise
 
             pull_name = self.area.area_manager.char_list[free_id]
+
+            diamonds -= cost
+            self.server.save_diamonds(self, diamonds)
+
             if free_id in self.server.charlock_data[self.hdid]:
-                self.send_ooc(f"You pulled {pull_name}, but you already have them!\nInstead, have a 2 Lawyer Diamond refund.")
                 diamonds += 2
                 self.server.save_diamonds(self, diamonds)
-                self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()})... But it was a duplicate!\r\n==================", "1",)
+                self.send_ooc(f"You pulled {pull_name}, but you already have them!\nInstead, have a 2 Lawyer Diamond refund.\nYou have {diamonds} Lawyer Diamonds remaining.")
+                if not pull_rarity == 'Common':
+                    self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()})... But it was a duplicate!\r\n==================", "1",)
             else:
                 try:
                     self.charcurse.append(free_id)
@@ -455,8 +460,6 @@ class ClientManager:
                     self.server.save_charlock_data()
                 except ClientError:
                     raise
-                diamonds -= cost
-                self.server.save_diamonds(self, diamonds)
                 self.send_ooc(f"You unlocked: {pull_name} ({pull_rarity.upper()})\nYou have {len(self.server.charlock_data[self.hdid])} out of {total} characters unlocked!\nLawyer Diamonds remaining: {diamonds}")
                 if pull in Rare:
                     self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()})\r\n==================", "1",)
