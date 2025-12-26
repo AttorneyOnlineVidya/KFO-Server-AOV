@@ -388,18 +388,29 @@ def ooc_cmd_unlocks(client, arg):
 def ooc_cmd_uuddlrlrbas(client, arg):
     """
     Unlock everything. Cheater.
-    Usage: /uuddlrlrbas
+    Usage: /uuddlrlrbas <id>
     """
-    everyone = client.server.char_list
-    client.charcurse.clear()
-    client.server.charlock_data[client.hdid].clear()
-    for i in everyone:
-        every_id = client.area.area_manager.get_char_id_by_name(i)
-        client.charcurse.append(every_id)
-        client.server.charlock_data[client.hdid].append(every_id)
-    client.server.save_charlock_data()
-    client.send_ooc("Unlocked all characters.")
-
+    if len(arg) == 0:
+        raise ArgumentError('You must specify a target ID.')
+    try:
+        targets = client.server.client_manager.get_targets(
+            client, TargetType.ID, int(arg), False)
+    except Exception:
+        raise ArgumentError('You must specify a target. Use /uuddlrlrbas <id>.')
+    if targets:
+        for c in targets:
+            everyone = client.server.char_list
+            c.charcurse.clear()
+            c.server.charlock_data[c.hdid].clear()
+            for i in everyone:
+                every_id = client.area.area_manager.get_char_id_by_name(i)
+                c.charcurse.append(every_id)
+                c.server.charlock_data[c.hdid].append(every_id)
+            c.server.save_charlock_data()
+            c.send_ooc("All characters unlocked.")
+            client.send_ooc(f"Unlocked all characters for [{c.id}] {c.char_name}.")
+    else:
+        client.send_ooc('No targets found.')
 
 @mod_only()
 def ooc_cmd_prestige(client, args):
