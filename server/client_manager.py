@@ -448,6 +448,11 @@ class ClientManager:
             self.server.save_diamonds(self, diamonds)
 
             if free_id in self.server.charlock_data[self.hdid]:
+                if len(self.server.charlock_data[self.hdid]) == total:
+                    self.send_ooc("What the actual FUCK, you already have every character? Congratulations! Have your diamonds back!")
+                    diamonds += cost
+                    self.server.save_diamonds(self, diamonds)
+                    return
                 diamonds += 2
                 self.server.save_diamonds(self, diamonds)
                 self.send_ooc(f"You pulled {pull_name}, but you already have them!\nInstead, have a 2 Lawyer Diamond refund.\nYou have {diamonds} Lawyer Diamonds remaining.")
@@ -467,6 +472,9 @@ class ClientManager:
                     self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()} ⭐)\r\n==================", "1",)
                 elif pull in Legendary:
                     self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked {pull_name} ({pull_rarity.upper()} 🌟)\r\n==================", "1",)
+            
+            if len(self.server.charlock_data[self.hdid]) == total:
+                    self.server.send_all_cmd_pred("CT", self.server.config["hostname"], f"=== Announcement ===\r\n A player in {self.area.name} has just unlocked EVERY CHARACTER IN THE GAME! HOLY SHIT!!!\r\n==================", "1",)
 
 
         def send_hub_info(self):

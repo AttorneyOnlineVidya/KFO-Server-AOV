@@ -19,6 +19,8 @@ __all__ = [
     "ooc_cmd_valor",
     "ooc_cmd_gamba",
     "ooc_cmd_unlocks",
+    "ooc_cmd_uuddlrlrbas",
+    "ooc_cmd_prestige",
     "ooc_cmd_freq",
 ]
 
@@ -383,9 +385,41 @@ def ooc_cmd_unlocks(client, arg):
     client.send_ooc(unlock_list)
 
 @mod_only()
+def ooc_cmd_uuddlrlrbas(client, arg):
+    """
+    Unlock everything. Cheater.
+    Usage: /uuddlrlrbas
+    """
+    everyone = client.server.char_list
+    client.charcurse.clear()
+    client.server.charlock_data[client.hdid].clear()
+    for i in everyone:
+        every_id = client.area.area_manager.get_char_id_by_name(i)
+        client.charcurse.append(every_id)
+        client.server.charlock_data[client.hdid].append(every_id)
+    client.server.save_charlock_data()
+    client.send_ooc("Unlocked all characters.")
+
+
+@mod_only()
+def ooc_cmd_prestige(client, args):
+    """
+    Back to Anonymous.
+    Usage: /prestige    
+    """
+    client.charcurse.clear()
+    client.server.charlock_data[client.hdid].clear()
+    client.charcurse.append(319)
+    client.server.charlock_data[client.hdid].append(319)
+    client.server.save_charlock_data()
+    client.change_character(-1)
+    client.send_ooc("All your unlocks removed. Set to spectator.")
+
+
+@mod_only()
 def ooc_cmd_freq(client, arg):
     """
-    Shows or changes diamond mining frequency.
+    Shows or changes diamond mining frequency (after the current loop).
     Usage: /freq [seconds]
     """
     mine_freq = client.server.misc_data["diamond_frequency"]
