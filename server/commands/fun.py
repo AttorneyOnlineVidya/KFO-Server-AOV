@@ -345,7 +345,7 @@ def ooc_cmd_valor(client, arg):
     player_unlocks = len(client.server.charlock_data[client.hdid])
     if account in lupabank_list:
         diamonds = client.server.load_diamonds(client)
-        client.send_ooc(f'You currently have {diamonds} Lawyer Diamonds.\nYou have {player_unlocks} out of {total} characters unlocked!')
+        client.send_ooc(f'You currently have {diamonds} Lawyer Diamonds.\nYou have {player_unlocks} out of {total} characters unlocked! Use /unlocks to see them all.')
     else:
         raise ClientError("You don't have a bank for some reason. Uh oh.")
 

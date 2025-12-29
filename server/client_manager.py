@@ -377,7 +377,7 @@ class ClientManager:
                         self.send_ooc("Characters in use - moved to Spectator.")
                         self.change_character(-1)
                 self.send_ooc(f"Welcome back to Attorneys of Valor 2!\nYou have {len(player_unlocks)} out of {total} characters unlocked and {diamonds} Lawyer Diamonds available!")
-                self.send_ooc(f"Use /gamba to pull or go case to get more Lawyer Diamonds!")
+                self.send_ooc(f"Use /gamba to pull, /valor to see your stats or go case to get more Lawyer Diamonds!")
             else:
                 try:
                     # Roll a random Starter rarity character
@@ -405,7 +405,7 @@ class ClientManager:
                     raise
                 self.send_ooc(f"Welcome to Attorneys of Valor 2!\nHere's your free Starter character:")
                 self.send_ooc(f"Character unlocked: {self.char_name}!")
-                self.send_ooc(f"We've also given you 10 Lawyer Diamonds to start - Use /gamba to pull or go case to get more!")
+                self.send_ooc(f"We've also given you 10 Lawyer Diamonds to start - Use /gamba to pull, /valor to see your stats or go case to get more Lawyer Diamonds!")
                 
 
         def gamble(self):
