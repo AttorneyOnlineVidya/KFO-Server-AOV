@@ -656,7 +656,6 @@ class ClientManager:
                 if len(self.charcurse) > 0:
                     if char_id not in self.charcurse:
                         raise ClientError("Character not available.")
-                        #char_id = -1 # ANNI
                     force = True
                 if not self.area.is_char_available(char_id):
                     if force:
@@ -2298,16 +2297,16 @@ class ClientManager:
             return message
         
         # Anni
-        def bonus_check(self):
-            import random
-            ding = random.randint(1, 400)
-            diamonds = self.server.load_diamonds(self)
-            status = self.area.status
-            if status == "CASING" or status == "RECESS" or status == "LOOKING-FOR-PLAYERS":
-                if ding < 5:
-                    self.send_ooc("DING! You have been awarded 5 Lawyer Diamonds! Go /gamba!")
-                    diamonds += 5
-                    self.server.save_diamonds(self, diamonds)
+        #def bonus_check(self):
+        #    import random
+        #    ding = random.randint(1, 400)
+        #    diamonds = self.server.load_diamonds(self)
+        #    status = self.area.status
+        #    if status == "CASING" or status == "RECESS" or status == "LOOKING-FOR-PLAYERS":
+        #        if ding < 5:
+        #            self.send_ooc("DING! You have been awarded 5 Lawyer Diamonds! Go /gamba!")
+        #            diamonds += 5
+        #            self.server.save_diamonds(self, diamonds)
 
             
 
@@ -2499,21 +2498,21 @@ class ClientManager:
         return [c for c in self.clients if c.is_mod]
     
     # ANNI
-    def diamond_mine(self):
-        """
-        Attempts to obtain for Lawyer Diamonds.
-        """
-        import random
-        mine = random.randint(1, 5)
-        for client in self.clients:
-            lupabank_list = client.server.bank_data
-            if client.hdid in lupabank_list:
-                coin = self.server.load_diamonds(client)
-                coin += mine
-                self.server.save_diamonds(client, coin)
-                client.send_ooc(f'Delivery! You have obtained {mine} Lawyer Diamonds!\nYou now have {coin} Lawyer Diamonds total.')
-            else:
-                return
+    #def diamond_mine(self):
+    #    """
+    #    Attempts to obtain for Lawyer Diamonds.
+    #    """
+    #    import random
+    #    mine = random.randint(1, 5)
+    #    for client in self.clients:
+    #        lupabank_list = client.server.bank_data
+    #        if client.hdid in lupabank_list:
+    #            coin = self.server.load_diamonds(client)
+    #            coin += mine
+    #            self.server.save_diamonds(client, coin)
+    #            client.send_ooc(f'Delivery! You have obtained {mine} Lawyer Diamonds!\nYou now have {coin} Lawyer Diamonds total.')
+    #        else:
+    #            return
                 
         
     class BattleChar:

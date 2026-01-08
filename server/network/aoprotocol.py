@@ -318,7 +318,8 @@ class AOProtocol(asyncio.Protocol):
         self.client.send_done()
         self.client.send_motd()
         #self.client.is_it()
-        self.client.gacha_enable()
+        # anni
+        #self.client.gacha_enable()
         self.client.send_hub_info()
         # TODO: move this code to the area itself so it can handle whatever it needs to later
         if self.client.area.music_autoplay:
@@ -1424,7 +1425,7 @@ class AOProtocol(asyncio.Protocol):
             blipname,
             slide,
         )
-        self.client.bonus_check()
+        #anni self.client.bonus_check()
         # DRO client support
         if self.client.software == "DRO":
             # send it back to the client

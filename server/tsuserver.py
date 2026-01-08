@@ -95,11 +95,12 @@ class TsuServer3:
             self.load_gimps()
             self.load_prompts()
             self.load_miscdata()
-            self.load_bankdata()
-            self.save_bankdata()
-            self.load_charlock_data()
-            self.save_charlock_data()
-            self.load_rarity_list()
+            #anni
+            #self.load_bankdata()
+            #self.save_bankdata()
+            #self.load_charlock_data()
+            #self.save_charlock_data()
+            #self.load_rarity_list()
             self.hub_manager = HubManager(self)
         except yaml.YAMLError:
             print("There was a syntax error parsing a configuration file:")
@@ -126,6 +127,9 @@ class TsuServer3:
         """Start the server."""
         logger.info("Starting server")
         loop = asyncio.get_event_loop_policy().get_event_loop()
+        #if python 3.16+
+        #loop = asyncio.new_event_loop()
+        #asyncio.set_event_loop(loop)
 
         bound_ip = "0.0.0.0"
         if self.config["local"]:
@@ -165,7 +169,7 @@ class TsuServer3:
                 # Don't end the whole server if bridgebot destroys itself
                 print(ex)
         asyncio.ensure_future(self.schedule_unbans())
-        asyncio.ensure_future(self.diamond_loop())
+        #asyncio.ensure_future(self.diamond_loop())
         # ANNI
 
         database.log_misc("start")
@@ -190,12 +194,12 @@ class TsuServer3:
             await asyncio.sleep(3600 * 12)
 
     # ANNI 
-    async def diamond_loop(self):
-        self.mine_frequency = self.misc_data["diamond_frequency"]
-        while True:
-            self.client_manager.diamond_mine()
-            await asyncio.sleep(self.mine_frequency)
-            # time in seconds
+    #async def diamond_loop(self):
+    #    self.mine_frequency = self.misc_data["diamond_frequency"]
+    #    while True:
+    #        self.client_manager.diamond_mine()
+    #        await asyncio.sleep(self.mine_frequency)
+    #        # time in seconds
 
     @property
     def version(self):
@@ -403,53 +407,53 @@ class TsuServer3:
             }
     
     #ANNI
-    def load_bankdata(self):
-        file = Path('config/bank.yaml')
-        if file.exists():
-            with open('config/bank.yaml', 'r', encoding='utf-8') as bank:
-                self.bank_data = yaml.safe_load(bank)
-        else:
-            with open('config/bank.yaml', 'w+', encoding='utf-8') as bank:
-                self.bank_data = yaml.safe_load(bank)
-                self.bank_data = {
-                        0: 0
-                    }
+    #def load_bankdata(self):
+    #    file = Path('config/bank.yaml')
+    #    if file.exists():
+    #        with open('config/bank.yaml', 'r', encoding='utf-8') as bank:
+    #            self.bank_data = yaml.safe_load(bank)
+    #    else:
+    #        with open('config/bank.yaml', 'w+', encoding='utf-8') as bank:
+    #            self.bank_data = yaml.safe_load(bank)
+    #            self.bank_data = {
+    #                    0: 0
+    #                }
 
-    def save_bankdata(self):
-        try:
-            with open('config/bank.yaml', 'w') as bank:
-                yaml.dump(self.bank_data, bank, indent=4)
-        except Exception:
-            logger.debug("Cannot find bank.yaml")
+    #def save_bankdata(self):
+    #    try:
+    #        with open('config/bank.yaml', 'w') as bank:
+    #            yaml.dump(self.bank_data, bank, indent=4)
+    #    except Exception:
+    #        logger.debug("Cannot find bank.yaml")
 
-    def load_charlock_data(self):
-        file = Path('config/charlock.yaml')
-        if file.exists():
-            try:
-                with open('config/charlock.yaml', 'r', encoding='utf-8') as charlock:
-                    self.charlock_data = yaml.safe_load(charlock)
-            except Exception:
-                logger.debug("Cannot find charlock.yaml")
-        else:
-            with open('config/charlock.yaml', 'w+', encoding='utf-8') as charlock:
-                self.charlock_data = yaml.safe_load(charlock)
-                self.charlock_data = {
-                    0: 0
-                }
+    #def load_charlock_data(self):
+    #    file = Path('config/charlock.yaml')
+    #    if file.exists():
+    #        try:
+    #            with open('config/charlock.yaml', 'r', encoding='utf-8') as charlock:
+    #                self.charlock_data = yaml.safe_load(charlock)
+    #        except Exception:
+    #            logger.debug("Cannot find charlock.yaml")
+    #    else:
+    #        with open('config/charlock.yaml', 'w+', encoding='utf-8') as charlock:
+    #            self.charlock_data = yaml.safe_load(charlock)
+    #            self.charlock_data = {
+    #                0: 0
+    #            }
 
-    def save_charlock_data(self):
-        try:
-            with open('config/charlock.yaml', 'w') as charlock:
-                yaml.dump(self.charlock_data, charlock, indent=2, default_flow_style=None)
-        except Exception:
-            logger.debug("Cannot find charlock.yaml")
+    #def save_charlock_data(self):
+    #    try:
+    #        with open('config/charlock.yaml', 'w') as charlock:
+    #            yaml.dump(self.charlock_data, charlock, indent=2, default_flow_style=None)
+    #    except Exception:
+    #        logger.debug("Cannot find charlock.yaml")
 
-    def load_rarity_list(self):
-        try:
-            with open('config/rarity.yaml', 'r', encoding='utf-8') as rarity:
-                self.rarity_list = yaml.safe_load(rarity)
-        except Exception:
-            logger.debug("Cannot find rarity.yaml")
+    #def load_rarity_list(self):
+    #    try:
+    #        with open('config/rarity.yaml', 'r', encoding='utf-8') as rarity:
+    #            self.rarity_list = yaml.safe_load(rarity)
+    #    except Exception:
+    #        logger.debug("Cannot find rarity.yaml")
 
     def save_miscdata(self):
         """Save misc data to file."""
@@ -558,15 +562,15 @@ class TsuServer3:
         self.send_all_cmd_pred("CT", ooc_name, msg, pred=lambda x: x.is_mod)
 
     # ANNI
-    def load_diamonds(self, client):
-        """Load user Lawyer Diamonds."""
-        diamonds = self.bank_data[client.hdid]
-        return diamonds
+    #def load_diamonds(self, client):
+    #    """Load user Lawyer Diamonds."""
+    #    diamonds = self.bank_data[client.hdid]
+    #    return diamonds
     
-    def save_diamonds(self, client, diamonds):
-        """Save user Lawyer Diamonds."""
-        self.bank_data[client.hdid] = diamonds
-        self.save_bankdata()
+    #def save_diamonds(self, client, diamonds):
+    #    """Save user Lawyer Diamonds."""
+    #    self.bank_data[client.hdid] = diamonds
+    #    self.save_bankdata()
 
     def broadcast_need(self, client, msg):
         """
@@ -663,9 +667,6 @@ class TsuServer3:
          - Gimp list
          - Prompts
          - Misc Data
-         - Bank Data
-         - charlock_data
-         - Rarity List
         """
         with open("config/config.yaml", "r") as cfg:
             cfg_yaml = yaml.safe_load(cfg)
@@ -716,9 +717,9 @@ class TsuServer3:
         self.load_gimps()
         self.load_prompts()
         self.load_miscdata()
-        self.load_bankdata()
-        self.load_charlock_data()
-        self.load_rarity_list()
+        #self.load_bankdata()
+        #self.load_charlock_data()
+        #self.load_rarity_list()
 
         import server.commands
 

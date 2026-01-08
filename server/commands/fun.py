@@ -15,13 +15,6 @@ __all__ = [
     "ooc_cmd_rainbow",
     "ooc_cmd_emoji",
     "ooc_cmd_aussie",
-    "ooc_cmd_tag",
-    "ooc_cmd_valor",
-    "ooc_cmd_gamba",
-    "ooc_cmd_unlocks",
-    "ooc_cmd_uuddlrlrbas",
-    "ooc_cmd_prestige",
-    "ooc_cmd_freq",
 ]
 
 
