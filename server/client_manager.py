@@ -750,8 +750,11 @@ class ClientManager:
             if cid != self.char_id:
                 return
             if not self.hdid.startswith("S-"):
-                self.send_ooc("WebAO users are blocked from playing music. Download the client at https://aovidya.pw/AOV")
-                return
+                if self.is_mod or self in self.area.owners:
+                    pass
+                else:
+                    self.send_ooc("WebAO users are blocked from playing music. Download the client at https://aovidya.pw/AOV")
+                    return
 
             # Decode AO packet
             song = song.replace("<num>", "#") \
